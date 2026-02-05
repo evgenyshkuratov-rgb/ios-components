@@ -171,8 +171,13 @@ public final class ChipsView: UIView {
     // MARK: - Private Methods
 
     private func setupView() {
-        layer.cornerRadius = 1000 // Fully rounded
+        translatesAutoresizingMaskIntoConstraints = false
+        layer.cornerRadius = 16
         clipsToBounds = true
+
+        // Set content hugging to ensure view wraps content
+        setContentHuggingPriority(.required, for: .horizontal)
+        setContentHuggingPriority(.required, for: .vertical)
 
         addSubview(containerStack)
 
@@ -197,11 +202,18 @@ public final class ChipsView: UIView {
         avatarWidthConstraint = avatarImageView.widthAnchor.constraint(equalToConstant: currentSize.avatarSize)
         avatarHeightConstraint = avatarImageView.heightAnchor.constraint(equalToConstant: currentSize.avatarSize)
 
+        // Leading constraint pins stack to left edge
+        let leadingConstraint = containerStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8)
+
+        // Trailing constraint pins view's right edge to stack's right edge + padding
+        // This makes the view's width determined by the stack's content
+        let trailingConstraint = trailingAnchor.constraint(equalTo: containerStack.trailingAnchor, constant: 12)
+
         NSLayoutConstraint.activate([
             heightConstraint!,
 
-            containerStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
-            containerStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+            leadingConstraint,
+            trailingConstraint,
             containerStack.centerYAnchor.constraint(equalTo: centerYAnchor),
 
             iconWidthConstraint!,
@@ -210,8 +222,8 @@ public final class ChipsView: UIView {
             avatarWidthConstraint!,
             avatarHeightConstraint!,
 
-            closeButton.widthAnchor.constraint(equalToConstant: 36),
-            closeButton.heightAnchor.constraint(equalToConstant: 36),
+            closeButton.widthAnchor.constraint(equalToConstant: 28),
+            closeButton.heightAnchor.constraint(equalToConstant: 28),
 
             textLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 224)
         ])
@@ -228,6 +240,7 @@ public final class ChipsView: UIView {
         heightConstraint?.constant = currentSize.height
         avatarWidthConstraint?.constant = currentSize.avatarSize
         avatarHeightConstraint?.constant = currentSize.avatarSize
+        layer.cornerRadius = currentSize.height / 2
 
         switch currentState {
         case .default:
