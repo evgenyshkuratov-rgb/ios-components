@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>12</integer>
+	<key>logs</key>
+	<dict>
+		<key>918CF210-B6A8-49CB-A04B-0F0F002E471A</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>918CF210-B6A8-49CB-A04B-0F0F002E471A.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>GalleryApp project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>GalleryApp</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project GalleryApp with scheme GalleryApp</string>
+			<key>timeStartedRecording</key>
+			<real>791992217.89528096</real>
+			<key>timeStoppedRecording</key>
+			<real>791992226.61263299</real>
+			<key>title</key>
+			<string>Building project GalleryApp with scheme GalleryApp</string>
+			<key>uniqueIdentifier</key>
+			<string>918CF210-B6A8-49CB-A04B-0F0F002E471A</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

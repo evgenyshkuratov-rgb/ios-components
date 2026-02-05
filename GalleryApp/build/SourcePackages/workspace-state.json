@@ -1,0 +1,27 @@
+{
+  "object" : {
+    "artifacts" : [
+
+    ],
+    "dependencies" : [
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "ios-land-component",
+          "kind" : "fileSystem",
+          "location" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component",
+          "name" : "Components"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component"
+        },
+        "subpath" : "ios-land-component"
+      }
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

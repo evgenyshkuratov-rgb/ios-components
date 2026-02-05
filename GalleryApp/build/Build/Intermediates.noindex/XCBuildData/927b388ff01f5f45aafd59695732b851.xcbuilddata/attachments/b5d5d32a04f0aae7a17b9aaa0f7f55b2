@@ -1,0 +1,19 @@
+{
+  "" : {
+    "diagnostics" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/Components-primary.dia",
+    "emit-module-dependencies" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/Components-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/Components-primary-emit-module.dia",
+    "pch" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/Components-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/Components-primary.swiftdeps"
+  },
+  "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/Sources/Components/ChipsView.swift" : {
+    "const-values" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/ChipsView.swiftconstvalues",
+    "dependencies" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/ChipsView.d",
+    "diagnostics" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/ChipsView.dia",
+    "index-unit-output-path" : "/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/ChipsView.o",
+    "llvm-bc" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/ChipsView.bc",
+    "object" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/ChipsView.o",
+    "swift-dependencies" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/ChipsView.swiftdeps",
+    "swiftmodule" : "/Users/evgeny.shkuratov/Clode code projects/ios-land-component/GalleryApp/build/Build/Intermediates.noindex/Components.build/Debug-iphonesimulator/Components.build/Objects-normal/arm64/ChipsView~partial.swiftmodule"
+  }
+}
