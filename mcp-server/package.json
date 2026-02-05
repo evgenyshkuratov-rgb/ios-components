@@ -1,0 +1,28 @@
+{
+  "name": "@evgenyshkuratov-rgb/ios-components-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for iOS components library - provides component specs to Claude",
+  "type": "module",
+  "bin": {
+    "ios-components-mcp": "./index.js"
+  },
+  "files": [
+    "index.js"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "ios",
+    "components",
+    "uikit",
+    "claude"
+  ],
+  "author": "evgenyshkuratov-rgb",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evgenyshkuratov-rgb/ios-components.git"
+  }
+}

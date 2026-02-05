@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "components": [
+    {
+      "name": "ChipsView",
+      "description": "Filter chip with Default, Active, and Avatar states in two sizes (32pt, 40pt)"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "ChipsView",
+  "description": "A filter chip component with multiple states (Default, Active, Avatar) and sizes (32pt, 40pt). Used for filters, tags, and user selections.",
+  "import": "import Components",
+  "properties": [
+    {
+      "name": "text",
+      "type": "String",
+      "description": "The text displayed in the chip"
+    },
+    {
+      "name": "icon",
+      "type": "UIImage?",
+      "description": "Optional icon displayed on the left side (not used in avatar state)"
+    },
+    {
+      "name": "state",
+      "type": "ChipsView.State",
+      "description": "Visual state: .default (gray bg), .active (green bg), or .avatar (with user info)"
+    },
+    {
+      "name": "size",
+      "type": "ChipsView.Size",
+      "description": "Size variant: .small (32pt height) or .medium (40pt height)"
+    },
+    {
+      "name": "avatarImage",
+      "type": "UIImage?",
+      "description": "User avatar image (only for avatar state)"
+    },
+    {
+      "name": "onTap",
+      "type": "(() -> Void)?",
+      "description": "Callback when chip is tapped"
+    },
+    {
+      "name": "onClose",
+      "type": "(() -> Void)?",
+      "description": "Callback when close button is tapped (only for avatar state)"
+    }
+  ],
+  "usage": "// Default chip with icon\nlet chip = ChipsView()\nchip.configure(\n    text: \"Filter option\",\n    icon: UIImage(systemName: \"person.2\"),\n    state: .default,\n    size: .small\n)\nchip.onTap = { print(\"Chip tapped\") }\n\n// Active chip\nlet activeChip = ChipsView()\nactiveChip.configure(\n    text: \"Selected\",\n    icon: UIImage(systemName: \"person.2\"),\n    state: .active,\n    size: .medium\n)\n\n// Avatar chip with close button\nlet avatarChip = ChipsView()\navatarChip.configureAvatar(\n    name: \"John Doe\",\n    avatarImage: userImage,\n    size: .medium\n)\navatarChip.onClose = { print(\"Remove user\") }",
+  "tags": ["chips", "filter", "tag", "selection", "avatar", "button"]
+}
