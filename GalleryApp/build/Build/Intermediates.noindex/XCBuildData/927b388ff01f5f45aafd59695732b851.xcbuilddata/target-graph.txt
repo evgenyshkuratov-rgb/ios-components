@@ -1,6 +1,0 @@
-Target dependency graph (3 targets)
-Target 'GalleryApp' in project 'GalleryApp'
-➜ Explicit dependency on target 'Components' in project 'Components'
-Target 'Components' in project 'Components'
-➜ Explicit dependency on target 'Components' in project 'Components'
-Target 'Components' in project 'Components' (no dependencies)

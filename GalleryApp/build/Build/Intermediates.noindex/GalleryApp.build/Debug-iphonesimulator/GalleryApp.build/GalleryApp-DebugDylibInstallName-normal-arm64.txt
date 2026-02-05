@@ -1,1 +1,0 @@
-@rpath/GalleryApp.debug.dylib

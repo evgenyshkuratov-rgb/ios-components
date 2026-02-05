@@ -1,0 +1,30 @@
+# Xcode build artifacts
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad
+xcuserdata/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Node modules
+node_modules/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+*.xcworkspace
+!*.xcodeproj/project.xcworkspace/
+.idea/
+*.swp
+*~
+
+# Secrets
+.env
+*.pem
