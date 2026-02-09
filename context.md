@@ -34,8 +34,11 @@ ios-components/
 │
 ├── mcp-server/
 │   ├── package.json              # npm package config
-│   ├── index.js                  # MCP server with 3 tools
+│   ├── index.js                  # MCP server with 4 tools
 │   └── README.md                 # MCP setup instructions
+│
+├── scripts/
+│   └── statusline-command.sh     # Team-shared Claude Code status line
 │
 └── docs/
     └── plans/                    # Design documents
@@ -92,28 +95,31 @@ ios-components/
 
 ## MCP Server
 
-Three tools available:
+Four tools available:
 
 | Tool | Description |
 |------|-------------|
 | `list_components` | Returns all components with brief descriptions |
 | `get_component` | Returns full spec for a component by name |
 | `search_components` | Search by keyword in name/description/tags |
-
-### Installation
-```bash
-npm install -g @evgenyshkuratov-rgb/ios-components-mcp
-```
+| `check_updates` | Check for upstream changes — shows new/modified components and commit messages |
 
 ### Claude Code config (~/.claude.json)
 ```json
 {
   "mcpServers": {
     "ios-components": {
-      "command": "ios-components-mcp"
+      "type": "stdio",
+      "command": "node",
+      "args": ["/path/to/ios-land-component/mcp-server/index.js"]
     }
   }
 }
+```
+
+### Setup
+```bash
+cd mcp-server && npm install
 ```
 
 ## Swift Package usage
@@ -154,6 +160,34 @@ When working on this repo:
 - **iOS version**: Minimum deployment target is iOS 14
 - **No storyboards**: All UI is programmatic UIKit
 
+## Team Sync Awareness
+
+When team members push changes to the icons library or this components library, other developers see updates automatically via:
+
+1. **Status line** — Claude Code shows `Icons: +3 new (2h) | Comps: ✓` in the bottom bar
+2. **MCP check_updates tool** — Claude can give detailed changelogs on demand
+
+The status line script is at `scripts/statusline-command.sh` (copy to `~/.claude/statusline-command.sh`). It uses cached `git fetch` (every 5 min) to compare local vs remote branches.
+
+Both the icons-library and ios-components MCP servers have a `check_updates` tool that fetches from remote and reports new/modified/deleted files with commit messages.
+
+### Team setup
+1. Clone both repos side by side
+2. Run `npm install` in both `mcp-server/` directories
+3. Copy `scripts/statusline-command.sh` to `~/.claude/statusline-command.sh`
+4. Add MCP server entries to `~/.claude.json` (adjust paths to your local clones)
+5. Configure status line in `~/.claude/settings.json`:
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command.sh"
+  }
+}
+```
+
+Repo paths are configurable via `ICONS_REPO_PATH` and `COMPONENTS_REPO_PATH` env vars.
+
 ## Related repos
 
-- **icons-library**: https://github.com/evgenyshkuratov-rgb/icons-library - Icon assets with colors
+- **icons-library**: https://github.com/evgenyshkuratov-rgb/icons-library - Icon assets with colors, has its own MCP server with `list_icons`, `list_colors`, `get_icon`, `check_updates` tools

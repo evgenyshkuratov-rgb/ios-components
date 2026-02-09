@@ -2,6 +2,16 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { execSync } from "child_process";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(__dirname, "..");
+
+function git(cmd) {
+  return execSync(cmd, { cwd: REPO_ROOT, encoding: "utf-8", timeout: 15000 }).trim();
+}
 
 const GITHUB_BASE = "https://raw.githubusercontent.com/evgenyshkuratov-rgb/ios-components/main/specs";
 
@@ -139,6 +149,82 @@ server.tool(
           type: "text",
           text: `Error searching components: ${error.message}`
         }]
+      };
+    }
+  }
+);
+
+// Tool: check_updates
+// Compare local vs remote for new/modified components
+server.tool(
+  "check_updates",
+  "Check for upstream changes in the iOS components library — shows new/modified components and commit messages",
+  {},
+  async () => {
+    try {
+      try {
+        git("git fetch origin main --quiet");
+      } catch {
+        return {
+          content: [{
+            type: "text",
+            text: "Could not fetch from remote. Check network connection."
+          }]
+        };
+      }
+
+      let commitsBehind;
+      try {
+        commitsBehind = parseInt(git("git rev-list --count main..origin/main"), 10);
+      } catch {
+        commitsBehind = 0;
+      }
+
+      if (commitsBehind === 0) {
+        return {
+          content: [{
+            type: "text",
+            text: "Up to date — no new changes on remote."
+          }]
+        };
+      }
+
+      const newFiles = git("git diff --name-only --diff-filter=A main..origin/main").split("\n").filter(Boolean);
+      const modifiedFiles = git("git diff --name-only --diff-filter=M main..origin/main").split("\n").filter(Boolean);
+      const deletedFiles = git("git diff --name-only --diff-filter=D main..origin/main").split("\n").filter(Boolean);
+
+      const newComps = newFiles.filter(f => f.startsWith("Sources/") || f.startsWith("specs/"));
+      const modComps = modifiedFiles.filter(f => f.startsWith("Sources/") || f.startsWith("specs/"));
+      const delComps = deletedFiles.filter(f => f.startsWith("Sources/") || f.startsWith("specs/"));
+
+      const log = git('git log --format="%h %s (%an, %cr)" main..origin/main');
+
+      const lines = [
+        `## iOS Components: ${commitsBehind} commit(s) behind remote\n`,
+      ];
+
+      if (newComps.length > 0) {
+        lines.push(`**New files (${newComps.length}):** ${newComps.join(", ")}`);
+      }
+      if (modComps.length > 0) {
+        lines.push(`**Modified files (${modComps.length}):** ${modComps.join(", ")}`);
+      }
+      if (delComps.length > 0) {
+        lines.push(`**Deleted files (${delComps.length}):** ${delComps.join(", ")}`);
+      }
+      if (newComps.length === 0 && modComps.length === 0 && delComps.length === 0) {
+        const otherFiles = [...newFiles, ...modifiedFiles, ...deletedFiles];
+        lines.push(`**Changed files:** ${otherFiles.join(", ")}`);
+      }
+
+      lines.push(`\n**Commits:**\n${log}`);
+
+      return {
+        content: [{ type: "text", text: lines.join("\n") }]
+      };
+    } catch (error) {
+      return {
+        content: [{ type: "text", text: `Error checking updates: ${error.message}` }]
       };
     }
   }
