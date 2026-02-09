@@ -124,7 +124,7 @@ final class ChipsViewPreviewVC: UIViewController {
     private func makeSectionStack(title: String) -> UIStackView {
         let label = UILabel()
         label.text = title
-        label.font = DSTypography.sectionLabel
+        label.font = DSTypography.subhead3R.font
         label.textColor = DSColors.textSecondary
 
         let inner = UIStackView(arrangedSubviews: [label])

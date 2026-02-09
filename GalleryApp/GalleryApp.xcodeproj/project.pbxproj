@@ -21,6 +21,8 @@
 		A1000001233B000D /* user.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B000E /* user.svg */; };
 		A1000001233B000F /* close-s.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0010 /* close-s.svg */; };
 		A1000001233B0011 /* arrow-right-s.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0012 /* arrow-right-s.svg */; };
+		A1000001233B0018 /* Roboto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0016 /* Roboto.ttf */; };
+		A1000001233B0019 /* RobotoMono.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0017 /* RobotoMono.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +41,8 @@
 		A1000001233B000E /* user.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = user.svg; sourceTree = "<group>"; };
 		A1000001233B0010 /* close-s.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "close-s.svg"; sourceTree = "<group>"; };
 		A1000001233B0012 /* arrow-right-s.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "arrow-right-s.svg"; sourceTree = "<group>"; };
+		A1000001233B0016 /* Roboto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Roboto.ttf; sourceTree = "<group>"; };
+		A1000001233B0017 /* RobotoMono.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = RobotoMono.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +83,7 @@
 				A1000001233A0009 /* Info.plist */,
 				A1000001233A0021 /* design-system-counts.json */,
 				A1000001233B0014 /* Icons */,
+				A1000001233B0015 /* Fonts */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -120,6 +125,15 @@
 				A1000001233B000C /* user-2.svg */,
 			);
 			path = Icons;
+			sourceTree = "<group>";
+		};
+		A1000001233B0015 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001233B0016 /* Roboto.ttf */,
+				A1000001233B0017 /* RobotoMono.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -192,6 +206,8 @@
 				A1000001233B000D /* user.svg in Resources */,
 				A1000001233B000F /* close-s.svg in Resources */,
 				A1000001233B0011 /* arrow-right-s.svg in Resources */,
+				A1000001233B0018 /* Roboto.ttf in Resources */,
+				A1000001233B0019 /* RobotoMono.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

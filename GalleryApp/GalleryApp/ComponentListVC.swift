@@ -21,7 +21,7 @@ final class ComponentListVC: UIViewController {
 
     private let statusLabel: UILabel = {
         let label = UILabel()
-        label.font = DSTypography.caption
+        label.font = DSTypography.caption2R.font
         label.textColor = DSColors.textTertiary
         return label
     }()
@@ -77,7 +77,7 @@ final class ComponentListVC: UIViewController {
 
         let titleLabel = UILabel()
         titleLabel.text = "Components"
-        titleLabel.font = DSTypography.largeTitle
+        titleLabel.font = DSTypography.title1B.font
         titleLabel.textColor = DSColors.textPrimary
         stackView.addArrangedSubview(padded(titleLabel))
 
@@ -202,12 +202,12 @@ private final class ComponentCardView: UIView {
 
         let nameLabel = UILabel()
         nameLabel.text = name
-        nameLabel.font = DSTypography.sectionHeader
+        nameLabel.font = DSTypography.title5B.font
         nameLabel.textColor = DSColors.textPrimary
 
         let descLabel = UILabel()
         descLabel.text = description
-        descLabel.font = DSTypography.secondary
+        descLabel.font = DSTypography.subhead2R.font
         descLabel.textColor = DSColors.textSecondary
         descLabel.numberOfLines = 2
 

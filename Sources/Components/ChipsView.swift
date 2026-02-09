@@ -54,6 +54,14 @@ public final class ChipsView: UIView {
     private var currentState: State = .default
     private var currentSize: Size = .small
 
+    private static func robotoFont(size: CGFloat, weight: UIFont.Weight) -> UIFont {
+        let systemFont = UIFont.systemFont(ofSize: size, weight: weight)
+        let descriptor = systemFont.fontDescriptor.withFamily("Roboto")
+        let font = UIFont(descriptor: descriptor, size: size)
+        if font.familyName == "Roboto" { return font }
+        return systemFont
+    }
+
     private let containerStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
@@ -73,7 +81,7 @@ public final class ChipsView: UIView {
 
     private let textLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.font = ChipsView.robotoFont(size: 14, weight: .medium)
         label.textColor = ChipsColors.textPrimary
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -156,7 +164,7 @@ public final class ChipsView: UIView {
         currentSize = size
 
         textLabel.text = name
-        textLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        textLabel.font = ChipsView.robotoFont(size: 14, weight: .regular)
 
         avatarImageView.image = avatarImage
         avatarImageView.isHidden = false
@@ -247,18 +255,18 @@ public final class ChipsView: UIView {
             backgroundColor = ChipsColors.backgroundDefault
             iconImageView.tintColor = ChipsColors.textPrimary
             textLabel.textColor = ChipsColors.textPrimary
-            textLabel.font = .systemFont(ofSize: 14, weight: .medium)
+            textLabel.font = ChipsView.robotoFont(size: 14, weight: .medium)
 
         case .active:
             backgroundColor = ChipsColors.backgroundActive
             iconImageView.tintColor = ChipsColors.textPrimary
             textLabel.textColor = ChipsColors.textPrimary
-            textLabel.font = .systemFont(ofSize: 14, weight: .medium)
+            textLabel.font = ChipsView.robotoFont(size: 14, weight: .medium)
 
         case .avatar:
             backgroundColor = ChipsColors.backgroundDefault
             textLabel.textColor = ChipsColors.textPrimary
-            textLabel.font = .systemFont(ofSize: 14, weight: .regular)
+            textLabel.font = ChipsView.robotoFont(size: 14, weight: .regular)
         }
 
         setNeedsLayout()

@@ -27,11 +27,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         appearance.backgroundColor = DSColors.backgroundBase
         appearance.titleTextAttributes = [
             .foregroundColor: DSColors.textPrimary,
-            .font: DSTypography.buttonText
+            .font: DSTypography.body3M.font
         ]
         appearance.largeTitleTextAttributes = [
             .foregroundColor: DSColors.textPrimary,
-            .font: DSTypography.largeTitle
+            .font: DSTypography.title1B.font
         ]
 
         UINavigationBar.appearance().standardAppearance = appearance
