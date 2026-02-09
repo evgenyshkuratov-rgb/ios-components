@@ -11,6 +11,7 @@
 		A1000001233A0003 /* ComponentListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233A0004 /* ComponentListVC.swift */; };
 		A1000001233A0005 /* ChipsViewPreviewVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233A0006 /* ChipsViewPreviewVC.swift */; };
 		A1000001233A0007 /* Components in Frameworks */ = {isa = PBXBuildFile; productRef = A1000001233A0008 /* Components */; };
+		A1000001233A0020 /* design-system-counts.json in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233A0021 /* design-system-counts.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		A1000001233A0006 /* ChipsViewPreviewVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipsViewPreviewVC.swift; sourceTree = "<group>"; };
 		A1000001233A0009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1000001233A000A /* GalleryApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalleryApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000001233A0021 /* design-system-counts.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "design-system-counts.json"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +58,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000001233A0009 /* Info.plist */,
+				A1000001233A0021 /* design-system-counts.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -83,6 +86,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A1000001233A0012 /* Build configuration list for PBXNativeTarget "GalleryApp" */;
 			buildPhases = (
+				A1000001233A0030 /* Sync Design System Counts */,
 				A1000001233A0013 /* Sources */,
 				A1000001233A000B /* Frameworks */,
 				A1000001233A0014 /* Resources */,
@@ -140,10 +144,29 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1000001233A0020 /* design-system-counts.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A1000001233A0030 /* Sync Design System Counts */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Sync Design System Counts";
+			outputPaths = (
+				"$(SRCROOT)/GalleryApp/Resources/design-system-counts.json",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ICONS_REPO=\"$HOME/Clode code projects/Icons library\"\nCOMPS_REPO=\"$SRCROOT/..\"\nCACHE=/tmp/.gallery-sync-stamp\nMAX_AGE=600\n\n# Pull only if last sync was >5 min ago\nneed_pull=0\nif [ ! -f \"$CACHE\" ]; then\n  need_pull=1\nelse\n  age=$(( $(date +%s) - $(stat -f %m \"$CACHE\") ))\n  [ $age -gt $MAX_AGE ] && need_pull=1\nfi\n\nif [ $need_pull -eq 1 ]; then\n  git -C \"$ICONS_REPO\" pull --ff-only 2>/dev/null || true\n  git -C \"$COMPS_REPO\" pull --ff-only 2>/dev/null || true\n  touch \"$CACHE\"\nfi\n\npython3 -c \"\nimport json, os\n\nicons_repo = os.path.expanduser('~/Clode code projects/Icons library')\ncomponents_repo = os.environ.get('SRCROOT', '.')\nout = os.path.join(components_repo, 'GalleryApp/Resources/design-system-counts.json')\n\ncounts = {}\n\ntry:\n    with open(os.path.join(icons_repo, 'metadata.json')) as f:\n        counts['icons'] = len(json.load(f).get('icons', []))\nexcept Exception:\n    counts['icons'] = 0\n\ntry:\n    with open(os.path.join(icons_repo, 'colors.json')) as f:\n        counts['colors'] = len(json.load(f).get('colors', []))\nexcept Exception:\n    counts['colors'] = 0\n\ntry:\n    with open(os.path.join(components_repo, '../specs/index.json')) as f:\n        counts['components'] = len(json.load(f).get('components', []))\nexcept Exception:\n    counts['components'] = 0\n\nwith open(out, 'w') as f:\n    json.dump(counts, f, indent=2)\n    f.write('\\\\n')\n\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A1000001233A0013 /* Sources */ = {
@@ -196,7 +219,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -259,7 +282,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
