@@ -41,7 +41,10 @@ ios-components/
 │   └── statusline-command.sh     # Team-shared Claude Code status line
 │
 └── docs/
-    └── plans/                    # Design documents
+    └── plans/
+        ├── 2026-02-05-ios-components-library-design.md
+        ├── 2026-02-09-team-sync-awareness-design.md
+        └── 2026-02-09-team-sync-awareness-implementation.md
 ```
 
 ## Available components
@@ -99,10 +102,10 @@ Four tools available:
 
 | Tool | Description |
 |------|-------------|
-| `list_components` | Returns all components with brief descriptions |
-| `get_component` | Returns full spec for a component by name |
-| `search_components` | Search by keyword in name/description/tags |
-| `check_updates` | Check for upstream changes — shows new/modified components and commit messages |
+| `list_components` | Returns all components with brief descriptions (fetches from GitHub raw URLs) |
+| `get_component` | Returns full spec for a component by name (fetches from GitHub raw URLs) |
+| `search_components` | Search by keyword in name/description/tags (fetches from GitHub raw URLs) |
+| `check_updates` | Runs `git fetch` + compares `main..origin/main` to show new/modified Sources/ and specs/ files with commit messages |
 
 ### Claude Code config (~/.claude.json)
 ```json
@@ -190,4 +193,4 @@ Repo paths are configurable via `ICONS_REPO_PATH` and `COMPONENTS_REPO_PATH` env
 
 ## Related repos
 
-- **icons-library**: https://github.com/evgenyshkuratov-rgb/icons-library - Icon assets with colors, has its own MCP server with `list_icons`, `list_colors`, `get_icon`, `check_updates` tools
+- **icons-library**: https://github.com/evgenyshkuratov-rgb/icons-library - Icon assets (117 icons, 119 color tokens), Figma sync every 6h via GitHub Actions. Has its own MCP server (`mcp-server/`) with tools: `list_icons`, `list_colors`, `get_icon`, `check_updates`. Both MCP servers are registered globally in `~/.claude.json`.
