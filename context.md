@@ -28,7 +28,7 @@ ios-components/
 │   ├── GalleryApp.xcodeproj/     # Xcode project (includes "Sync Design System Counts" build phase)
 │   └── GalleryApp/
 │       ├── AppDelegate.swift     # App entry point
-│       ├── ComponentListVC.swift # Component catalog list with status badges header
+│       ├── ComponentListVC.swift # Component catalog with status badges above title
 │       ├── Previews/
 │       │   └── ChipsViewPreviewVC.swift
 │       └── Resources/
@@ -41,7 +41,8 @@ ios-components/
 │   └── README.md                 # MCP setup instructions
 │
 ├── scripts/
-│   └── statusline-command.sh     # Team-shared Claude Code status line
+│   ├── statusline-command.sh              # Claude Code status line (context window bar)
+│   └── sync-design-system-counts.sh       # Build phase script: counts + timestamps
 │
 └── docs/
     └── plans/
@@ -144,14 +145,15 @@ chip.onTap = { print("Tapped") }
 
 ## GalleryApp
 
-Xcode project for browsing and testing components. Features a **status badges header** — three pill-shaped badges at the top of the component list showing live counts for Components, Icons, and Colors.
+Xcode project for browsing and testing components. Features **status badges** — three text-only pills positioned above the large "Components" title, showing live counts and relative update times (e.g., "Updated 3d ago") for Components, Icons, and Colors.
 
 ### Status badges build phase
 
-A pre-build "Sync Design System Counts" script phase automatically:
+A pre-build "Sync Design System Counts" script phase (`scripts/sync-design-system-counts.sh`) automatically:
 1. Runs `git pull --ff-only` on both the icons-library and ios-components repos (cached — only pulls if >10 min since last sync, skips silently if offline)
 2. Reads `metadata.json`, `colors.json`, and `specs/index.json` from the local repos
-3. Writes `GalleryApp/Resources/design-system-counts.json` with the counts
+3. Gets last commit dates for icons, colors, and components via `git log`
+4. Writes `GalleryApp/Resources/design-system-counts.json` with counts and ISO 8601 timestamps
 
 The app reads this bundled JSON at launch — no network calls at runtime.
 
@@ -177,21 +179,9 @@ When working on this repo:
 
 ## Team Sync Awareness
 
-When team members push changes to the icons library or this components library, other developers see updates automatically via:
+When team members push changes to the icons library or this components library, other developers can check for updates via the **MCP check_updates tool**, which gives detailed changelogs on demand.
 
-1. **Status line** — Claude Code shows `Icons: +3 new (2h) | Comps: ✓` in the bottom bar
-2. **MCP check_updates tool** — Claude can give detailed changelogs on demand
-
-The status line script is at `scripts/statusline-command.sh` (copy to `~/.claude/statusline-command.sh`). It uses cached `git fetch` (every 5 min) to compare local vs remote branches.
-
-Both the icons-library and ios-components MCP servers have a `check_updates` tool that fetches from remote and reports new/modified/deleted files with commit messages.
-
-### Team setup
-1. Clone both repos side by side
-2. Run `npm install` in both `mcp-server/` directories
-3. Copy `scripts/statusline-command.sh` to `~/.claude/statusline-command.sh`
-4. Add MCP server entries to `~/.claude.json` (adjust paths to your local clones)
-5. Configure status line in `~/.claude/settings.json`:
+The Claude Code **status line** (`scripts/statusline-command.sh`) shows a context window progress bar only. Copy to `~/.claude/statusline-command.sh` and configure in `~/.claude/settings.json`:
 ```json
 {
   "statusLine": {
@@ -201,7 +191,12 @@ Both the icons-library and ios-components MCP servers have a `check_updates` too
 }
 ```
 
-Repo paths are configurable via `ICONS_REPO_PATH` and `COMPONENTS_REPO_PATH` env vars.
+### Team setup
+1. Clone both repos side by side
+2. Run `npm install` in both `mcp-server/` directories
+3. Copy `scripts/statusline-command.sh` to `~/.claude/statusline-command.sh`
+4. Add MCP server entries to `~/.claude.json` (adjust paths to your local clones)
+5. Configure status line in `~/.claude/settings.json` (see above)
 
 ## Related repos
 

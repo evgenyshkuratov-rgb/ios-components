@@ -164,7 +164,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "ICONS_REPO=\"$HOME/Clode code projects/Icons library\"\nCOMPS_REPO=\"$SRCROOT/..\"\nCACHE=/tmp/.gallery-sync-stamp\nMAX_AGE=600\n\n# Pull only if last sync was >5 min ago\nneed_pull=0\nif [ ! -f \"$CACHE\" ]; then\n  need_pull=1\nelse\n  age=$(( $(date +%s) - $(stat -f %m \"$CACHE\") ))\n  [ $age -gt $MAX_AGE ] && need_pull=1\nfi\n\nif [ $need_pull -eq 1 ]; then\n  git -C \"$ICONS_REPO\" pull --ff-only 2>/dev/null || true\n  git -C \"$COMPS_REPO\" pull --ff-only 2>/dev/null || true\n  touch \"$CACHE\"\nfi\n\npython3 -c \"\nimport json, os\n\nicons_repo = os.path.expanduser('~/Clode code projects/Icons library')\ncomponents_repo = os.environ.get('SRCROOT', '.')\nout = os.path.join(components_repo, 'GalleryApp/Resources/design-system-counts.json')\n\ncounts = {}\n\ntry:\n    with open(os.path.join(icons_repo, 'metadata.json')) as f:\n        counts['icons'] = len(json.load(f).get('icons', []))\nexcept Exception:\n    counts['icons'] = 0\n\ntry:\n    with open(os.path.join(icons_repo, 'colors.json')) as f:\n        counts['colors'] = len(json.load(f).get('colors', []))\nexcept Exception:\n    counts['colors'] = 0\n\ntry:\n    with open(os.path.join(components_repo, '../specs/index.json')) as f:\n        counts['components'] = len(json.load(f).get('components', []))\nexcept Exception:\n    counts['components'] = 0\n\nwith open(out, 'w') as f:\n    json.dump(counts, f, indent=2)\n    f.write('\\\\n')\n\"\n";
+			shellScript = "\"$SRCROOT/../scripts/sync-design-system-counts.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -9,10 +9,13 @@ final class ComponentListVC: UITableViewController {
     private var componentsCountLabel: UILabel!
     private var iconsCountLabel: UILabel!
     private var colorsCountLabel: UILabel!
+    private var componentsTimeLabel: UILabel!
+    private var iconsTimeLabel: UILabel!
+    private var colorsTimeLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Components"
+        navigationItem.largeTitleDisplayMode = .never
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "ComponentCell")
         setupHeaderView()
         fetchCounts()
@@ -20,30 +23,23 @@ final class ComponentListVC: UITableViewController {
 
     // MARK: - Header
 
-    private func makePill(icon: String, text: String) -> (view: UIView, label: UILabel) {
-        let imageView = UIImageView(image: UIImage(systemName: icon))
-        imageView.tintColor = .secondaryLabel
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 14),
-            imageView.heightAnchor.constraint(equalToConstant: 14)
-        ])
-
+    private func makePill(text: String) -> (view: UIView, label: UILabel, timeLabel: UILabel) {
         let label = UILabel()
         label.text = text
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .secondaryLabel
 
-        let stack = UIStackView(arrangedSubviews: [imageView, label])
-        stack.axis = .horizontal
-        stack.spacing = 4
-        stack.alignment = .center
+        let timeLabel = UILabel()
+        timeLabel.font = .systemFont(ofSize: 10, weight: .regular)
+        timeLabel.textColor = .tertiaryLabel
+
+        let stack = UIStackView(arrangedSubviews: [label, timeLabel])
+        stack.axis = .vertical
+        stack.spacing = 2
 
         let pill = UIView()
         pill.backgroundColor = .secondarySystemBackground
         pill.layer.cornerRadius = 12
-
         pill.layoutMargins = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
 
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -55,31 +51,44 @@ final class ComponentListVC: UITableViewController {
             stack.trailingAnchor.constraint(equalTo: pill.layoutMarginsGuide.trailingAnchor)
         ])
 
-        return (pill, label)
+        return (pill, label, timeLabel)
     }
 
     private func setupHeaderView() {
-        let componentsPill = makePill(icon: "square.stack.3d.up", text: "Components: ...")
-        let iconsPill = makePill(icon: "paintbrush", text: "Icons: ...")
-        let colorsPill = makePill(icon: "paintpalette", text: "Colors: ...")
+        let componentsPill = makePill(text: "Components: ...")
+        let iconsPill = makePill(text: "Icons: ...")
+        let colorsPill = makePill(text: "Colors: ...")
 
         componentsCountLabel = componentsPill.label
         iconsCountLabel = iconsPill.label
         colorsCountLabel = colorsPill.label
+        componentsTimeLabel = componentsPill.timeLabel
+        iconsTimeLabel = iconsPill.timeLabel
+        colorsTimeLabel = colorsPill.timeLabel
 
         let pillStack = UIStackView(arrangedSubviews: [
             componentsPill.view, iconsPill.view, colorsPill.view
         ])
         pillStack.axis = .horizontal
         pillStack.spacing = 8
-        pillStack.translatesAutoresizingMaskIntoConstraints = false
+        pillStack.distribution = .fillEqually
+
+        let titleLabel = UILabel()
+        titleLabel.text = "Components"
+        titleLabel.font = .systemFont(ofSize: 34, weight: .bold)
+
+        let mainStack = UIStackView(arrangedSubviews: [pillStack, titleLabel])
+        mainStack.axis = .vertical
+        mainStack.spacing = 12
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
 
         let header = UIView()
-        header.addSubview(pillStack)
+        header.addSubview(mainStack)
         NSLayoutConstraint.activate([
-            pillStack.topAnchor.constraint(equalTo: header.topAnchor, constant: 12),
-            pillStack.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
-            pillStack.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -12)
+            mainStack.topAnchor.constraint(equalTo: header.topAnchor, constant: 12),
+            mainStack.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
+            mainStack.trailingAnchor.constraint(equalTo: header.trailingAnchor, constant: -16),
+            mainStack.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -8)
         ])
 
         tableView.tableHeaderView = header
@@ -101,16 +110,38 @@ final class ComponentListVC: UITableViewController {
     private func fetchCounts() {
         guard let url = Bundle.main.url(forResource: "design-system-counts", withExtension: "json"),
               let data = try? Data(contentsOf: url),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Int] else {
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             componentsCountLabel.text = "Components: —"
             iconsCountLabel.text = "Icons: —"
             colorsCountLabel.text = "Colors: —"
             return
         }
-        if let count = json["components"] { componentsCountLabel.text = "Components: \(count)" }
-        if let count = json["icons"] { iconsCountLabel.text = "Icons: \(count)" }
-        if let count = json["colors"] { colorsCountLabel.text = "Colors: \(count)" }
+        if let count = json["components"] as? Int { componentsCountLabel.text = "Components: \(count)" }
+        if let count = json["icons"] as? Int { iconsCountLabel.text = "Icons: \(count)" }
+        if let count = json["colors"] as? Int { colorsCountLabel.text = "Colors: \(count)" }
+
+        componentsTimeLabel.text = relativeTime(from: json["components_updated"] as? String)
+        iconsTimeLabel.text = relativeTime(from: json["icons_updated"] as? String)
+        colorsTimeLabel.text = relativeTime(from: json["colors_updated"] as? String)
+
         sizeHeaderToFit()
+    }
+
+    private func relativeTime(from isoString: String?) -> String? {
+        guard let isoString = isoString else { return nil }
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        guard let date = formatter.date(from: isoString) else { return nil }
+
+        let seconds = Int(Date().timeIntervalSince(date))
+        let minutes = seconds / 60
+        let hours = minutes / 60
+        let days = hours / 24
+
+        if days > 0 { return "Updated \(days)d ago" }
+        if hours > 0 { return "Updated \(hours)h ago" }
+        if minutes > 0 { return "Updated \(minutes)m ago" }
+        return "Updated just now"
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
