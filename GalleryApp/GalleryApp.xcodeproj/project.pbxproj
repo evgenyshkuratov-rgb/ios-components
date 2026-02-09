@@ -21,6 +21,11 @@
 		A1000001233B000D /* user.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B000E /* user.svg */; };
 		A1000001233B000F /* close-s.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0010 /* close-s.svg */; };
 		A1000001233B0011 /* arrow-right-s.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0012 /* arrow-right-s.svg */; };
+		A1000001233B0031 /* search.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0030 /* search.svg */; };
+		A1000001233B0033 /* label-24.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0032 /* label-24.svg */; };
+		A1000001233B0035 /* grid-view.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0034 /* grid-view.svg */; };
+		A1000001233B0037 /* settings-24.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0036 /* settings-24.svg */; };
+		A1000001233B0039 /* frisbee-logo.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0038 /* frisbee-logo.svg */; };
 		A1000001233B0018 /* Roboto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0016 /* Roboto.ttf */; };
 		A1000001233B0019 /* RobotoMono.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0017 /* RobotoMono.ttf */; };
 /* End PBXBuildFile section */
@@ -41,6 +46,11 @@
 		A1000001233B000E /* user.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = user.svg; sourceTree = "<group>"; };
 		A1000001233B0010 /* close-s.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "close-s.svg"; sourceTree = "<group>"; };
 		A1000001233B0012 /* arrow-right-s.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "arrow-right-s.svg"; sourceTree = "<group>"; };
+		A1000001233B0030 /* search.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = search.svg; sourceTree = "<group>"; };
+		A1000001233B0032 /* label-24.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "label-24.svg"; sourceTree = "<group>"; };
+		A1000001233B0034 /* grid-view.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "grid-view.svg"; sourceTree = "<group>"; };
+		A1000001233B0036 /* settings-24.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "settings-24.svg"; sourceTree = "<group>"; };
+		A1000001233B0038 /* frisbee-logo.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "frisbee-logo.svg"; sourceTree = "<group>"; };
 		A1000001233B0016 /* Roboto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Roboto.ttf; sourceTree = "<group>"; };
 		A1000001233B0017 /* RobotoMono.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = RobotoMono.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -121,6 +131,11 @@
 			children = (
 				A1000001233B0012 /* arrow-right-s.svg */,
 				A1000001233B0010 /* close-s.svg */,
+				A1000001233B0038 /* frisbee-logo.svg */,
+				A1000001233B0034 /* grid-view.svg */,
+				A1000001233B0032 /* label-24.svg */,
+				A1000001233B0030 /* search.svg */,
+				A1000001233B0036 /* settings-24.svg */,
 				A1000001233B000E /* user.svg */,
 				A1000001233B000C /* user-2.svg */,
 			);
@@ -206,6 +221,11 @@
 				A1000001233B000D /* user.svg in Resources */,
 				A1000001233B000F /* close-s.svg in Resources */,
 				A1000001233B0011 /* arrow-right-s.svg in Resources */,
+				A1000001233B0031 /* search.svg in Resources */,
+				A1000001233B0033 /* label-24.svg in Resources */,
+				A1000001233B0035 /* grid-view.svg in Resources */,
+				A1000001233B0037 /* settings-24.svg in Resources */,
+				A1000001233B0039 /* frisbee-logo.svg in Resources */,
 				A1000001233B0018 /* Roboto.ttf in Resources */,
 				A1000001233B0019 /* RobotoMono.ttf in Resources */,
 			);

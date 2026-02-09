@@ -99,7 +99,7 @@ ios-components/
 │   ├── GalleryApp.xcodeproj/     # Xcode project (includes "Sync Design System Counts" build phase)
 │   └── GalleryApp/
 │       ├── AppDelegate.swift     # App entry point, nav bar appearance config
-│       ├── ComponentListVC.swift # Card-based catalog (scroll+stack, hidden nav bar)
+│       ├── ComponentListVC.swift # Wise-inspired catalog (brand circle, search bar, icon cards)
 │       ├── DesignSystem/
 │       │   ├── DSColors.swift    # Dynamic light/dark color tokens (from icons-library)
 │       │   ├── DSTypography.swift # Roboto text styles from Figma (37 styles)
@@ -226,7 +226,15 @@ chip.onTap = { print("Tapped") }
 
 ## GalleryApp
 
-Xcode project for browsing and testing components. Main screen has a **hidden nav bar** with content rendered directly in a scroll view: a compact inline status line (e.g., `1 Component (3d) · 276 Icons (1h) · 157 Colors (1h)`), a large "Components" title, and **card-based navigation** (`ComponentCardView` — rounded background, title, description, arrow icon, tap animation). The nav bar reappears on push to preview screens. ChipsView preview uses **per-section stacks** (8pt spacing within sections, 24pt between sections).
+Xcode project for browsing and testing components. Design is **Wise-inspired** — clean, spacious, and authentic. Main screen has a **hidden nav bar** with content rendered in a scroll view:
+
+1. **Green brand circle** (44pt, `successDefault` green, white grid-view icon) — top-left branding element
+2. **Large bold title** "Components" (`title1B`, 32pt)
+3. **Status line** (e.g., `1 Component (3d) · 276 Icons (1h) · 157 Colors (1h)`) in `subhead3R` tertiary color
+4. **Search bar** (`SearchBarView` — decorative, 48pt height, `backgroundSecond` fill, 12pt corners, search icon + placeholder)
+5. **Component cards** (`ComponentCard` — Wise-style: 52pt white circle icon container on left, title in `subtitle1M` + description in `subhead2R`, chevron arrow right, `backgroundSecond` fill, 16pt corners, spring tap animation)
+
+The nav bar reappears on push to preview screens. ChipsView preview uses **per-section stacks** (8pt spacing within sections, 24pt between sections).
 
 ### Status badges build phase
 
