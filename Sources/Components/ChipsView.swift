@@ -52,14 +52,14 @@ public final class ChipsView: UIView {
         case small  // 32pt height
         case medium // 40pt height
 
-        var height: CGFloat {
+        public var height: CGFloat {
             switch self {
             case .small: return 32
             case .medium: return 40
             }
         }
 
-        var avatarSize: CGFloat {
+        public var avatarSize: CGFloat {
             switch self {
             case .small: return 24
             case .medium: return 32
