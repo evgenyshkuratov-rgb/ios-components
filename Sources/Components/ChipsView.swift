@@ -1,5 +1,35 @@
 import UIKit
 
+// MARK: - ChipsColorScheme
+
+/// Injectable color scheme for ChipsView component.
+/// Provides Frisbee Light mode colors as default fallback.
+public struct ChipsColorScheme {
+    public let backgroundDefault: UIColor   // Basic Colors/8%
+    public let backgroundActive: UIColor    // ThemeFirst/Primary/Default
+    public let textPrimary: UIColor         // Basic Colors/90%
+    public let closeIconTint: UIColor       // Basic Colors/50%
+
+    public init(
+        backgroundDefault: UIColor,
+        backgroundActive: UIColor,
+        textPrimary: UIColor,
+        closeIconTint: UIColor
+    ) {
+        self.backgroundDefault = backgroundDefault
+        self.backgroundActive = backgroundActive
+        self.textPrimary = textPrimary
+        self.closeIconTint = closeIconTint
+    }
+
+    public static let `default` = ChipsColorScheme(
+        backgroundDefault: UIColor(white: 0, alpha: 0.08),
+        backgroundActive: UIColor(red: 64/255, green: 178/255, blue: 89/255, alpha: 1),
+        textPrimary: UIColor(white: 0, alpha: 0.9),
+        closeIconTint: UIColor(white: 0, alpha: 0.5)
+    )
+}
+
 // MARK: - ChipsView
 
 /// A filter chip component with multiple states and sizes.
@@ -35,13 +65,6 @@ public final class ChipsView: UIView {
             case .medium: return 32
             }
         }
-
-        var horizontalPadding: CGFloat {
-            switch self {
-            case .small: return 8
-            case .medium: return 12
-            }
-        }
     }
 
     // MARK: - Public Properties
@@ -53,6 +76,7 @@ public final class ChipsView: UIView {
 
     private var currentState: State = .default
     private var currentSize: Size = .small
+    private var colorScheme: ChipsColorScheme = .default
 
     private static func robotoFont(size: CGFloat, weight: UIFont.Weight) -> UIFont {
         let systemFont = UIFont.systemFont(ofSize: size, weight: weight)
@@ -74,15 +98,12 @@ public final class ChipsView: UIView {
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = ChipsColors.textPrimary
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
 
     private let textLabel: UILabel = {
         let label = UILabel()
-        label.font = ChipsView.robotoFont(size: 14, weight: .medium)
-        label.textColor = ChipsColors.textPrimary
         label.lineBreakMode = .byTruncatingTail
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -98,9 +119,6 @@ public final class ChipsView: UIView {
 
     private let closeButton: UIButton = {
         let button = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 12, weight: .medium)
-        button.setImage(UIImage(systemName: "xmark", withConfiguration: config), for: .normal)
-        button.tintColor = ChipsColors.textSecondary
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -110,6 +128,13 @@ public final class ChipsView: UIView {
     private var iconHeightConstraint: NSLayoutConstraint?
     private var avatarWidthConstraint: NSLayoutConstraint?
     private var avatarHeightConstraint: NSLayoutConstraint?
+
+    // Dynamic layout constraints
+    private var leadingConstraint: NSLayoutConstraint?
+    private var trailingConstraint: NSLayoutConstraint?
+    private var centerYConstraint: NSLayoutConstraint?
+    private var topConstraint: NSLayoutConstraint?
+    private var bottomConstraint: NSLayoutConstraint?
 
     // MARK: - Initialization
 
@@ -131,14 +156,17 @@ public final class ChipsView: UIView {
     ///   - icon: Optional icon image (displayed on the left)
     ///   - state: The visual state (.default or .active)
     ///   - size: The size variant (.small = 32pt, .medium = 40pt)
+    ///   - colorScheme: Injectable color scheme (defaults to Frisbee Light mode)
     public func configure(
         text: String,
         icon: UIImage? = nil,
         state: State = .default,
-        size: Size = .small
+        size: Size = .small,
+        colorScheme: ChipsColorScheme = .default
     ) {
         currentState = state
         currentSize = size
+        self.colorScheme = colorScheme
 
         textLabel.text = text
         iconImageView.image = icon
@@ -154,17 +182,21 @@ public final class ChipsView: UIView {
     /// - Parameters:
     ///   - name: The user's name to display
     ///   - avatarImage: The user's avatar image
+    ///   - closeIcon: Optional close icon image (injected, no SF Symbol fallback)
     ///   - size: The size variant (.small = 32pt, .medium = 40pt)
+    ///   - colorScheme: Injectable color scheme (defaults to Frisbee Light mode)
     public func configureAvatar(
         name: String,
         avatarImage: UIImage?,
-        size: Size = .small
+        closeIcon: UIImage? = nil,
+        size: Size = .small,
+        colorScheme: ChipsColorScheme = .default
     ) {
         currentState = .avatar
         currentSize = size
+        self.colorScheme = colorScheme
 
         textLabel.text = name
-        textLabel.font = ChipsView.robotoFont(size: 14, weight: .regular)
 
         avatarImageView.image = avatarImage
         avatarImageView.isHidden = false
@@ -172,6 +204,7 @@ public final class ChipsView: UIView {
 
         iconImageView.isHidden = true
         closeButton.isHidden = false
+        closeButton.setImage(closeIcon?.withRenderingMode(.alwaysTemplate), for: .normal)
 
         updateAppearance()
     }
@@ -210,19 +243,19 @@ public final class ChipsView: UIView {
         avatarWidthConstraint = avatarImageView.widthAnchor.constraint(equalToConstant: currentSize.avatarSize)
         avatarHeightConstraint = avatarImageView.heightAnchor.constraint(equalToConstant: currentSize.avatarSize)
 
-        // Leading constraint pins stack to left edge
-        let leadingConstraint = containerStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8)
-
-        // Trailing constraint pins view's right edge to stack's right edge + padding
-        // This makes the view's width determined by the stack's content
-        let trailingConstraint = trailingAnchor.constraint(equalTo: containerStack.trailingAnchor, constant: 12)
+        // Dynamic layout constraints (created but managed via updatePadding)
+        leadingConstraint = containerStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8)
+        trailingConstraint = trailingAnchor.constraint(equalTo: containerStack.trailingAnchor, constant: 12)
+        centerYConstraint = containerStack.centerYAnchor.constraint(equalTo: centerYAnchor)
+        topConstraint = containerStack.topAnchor.constraint(equalTo: topAnchor, constant: 4)
+        bottomConstraint = bottomAnchor.constraint(equalTo: containerStack.bottomAnchor, constant: 4)
 
         NSLayoutConstraint.activate([
             heightConstraint!,
 
-            leadingConstraint,
-            trailingConstraint,
-            containerStack.centerYAnchor.constraint(equalTo: centerYAnchor),
+            leadingConstraint!,
+            trailingConstraint!,
+            centerYConstraint!,
 
             iconWidthConstraint!,
             iconHeightConstraint!,
@@ -230,11 +263,15 @@ public final class ChipsView: UIView {
             avatarWidthConstraint!,
             avatarHeightConstraint!,
 
-            closeButton.widthAnchor.constraint(equalToConstant: 28),
-            closeButton.heightAnchor.constraint(equalToConstant: 28),
+            closeButton.widthAnchor.constraint(equalToConstant: 36),
+            closeButton.heightAnchor.constraint(equalToConstant: 36),
 
             textLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 224)
         ])
+
+        // Top/bottom start inactive (used only for avatar state)
+        topConstraint?.isActive = false
+        bottomConstraint?.isActive = false
     }
 
     private func setupActions() {
@@ -252,24 +289,68 @@ public final class ChipsView: UIView {
 
         switch currentState {
         case .default:
-            backgroundColor = ChipsColors.backgroundDefault
-            iconImageView.tintColor = ChipsColors.textPrimary
-            textLabel.textColor = ChipsColors.textPrimary
+            backgroundColor = colorScheme.backgroundDefault
+            iconImageView.tintColor = colorScheme.textPrimary
+            let defaultText = textLabel.text
+            textLabel.attributedText = nil
+            textLabel.text = defaultText
             textLabel.font = ChipsView.robotoFont(size: 14, weight: .medium)
+            textLabel.textColor = colorScheme.textPrimary
 
         case .active:
-            backgroundColor = ChipsColors.backgroundActive
-            iconImageView.tintColor = ChipsColors.textPrimary
-            textLabel.textColor = ChipsColors.textPrimary
+            backgroundColor = colorScheme.backgroundActive
+            iconImageView.tintColor = colorScheme.textPrimary
+            let activeText = textLabel.text
+            textLabel.attributedText = nil
+            textLabel.text = activeText
             textLabel.font = ChipsView.robotoFont(size: 14, weight: .medium)
+            textLabel.textColor = colorScheme.textPrimary
 
         case .avatar:
-            backgroundColor = ChipsColors.backgroundDefault
-            textLabel.textColor = ChipsColors.textPrimary
-            textLabel.font = ChipsView.robotoFont(size: 14, weight: .regular)
+            backgroundColor = colorScheme.backgroundDefault
+            closeButton.tintColor = colorScheme.closeIconTint
+            let font = ChipsView.robotoFont(size: 14, weight: .regular)
+            if let text = textLabel.text {
+                textLabel.attributedText = NSAttributedString(
+                    string: text,
+                    attributes: [
+                        .font: font,
+                        .kern: 0.25,
+                        .foregroundColor: colorScheme.textPrimary
+                    ]
+                )
+            }
         }
 
+        updatePadding()
         setNeedsLayout()
+    }
+
+    private func updatePadding() {
+        switch currentState {
+        case .default, .active:
+            let leadPad: CGFloat = currentSize == .small ? 8 : 12
+            leadingConstraint?.constant = leadPad
+            trailingConstraint?.constant = 12
+
+            // Deactivate top/bottom before activating centerY + height
+            topConstraint?.isActive = false
+            bottomConstraint?.isActive = false
+            heightConstraint?.isActive = true
+            centerYConstraint?.isActive = true
+
+        case .avatar:
+            leadingConstraint?.constant = 4
+            trailingConstraint?.constant = 0
+
+            // Deactivate centerY + height, let top/bottom determine height
+            centerYConstraint?.isActive = false
+            heightConstraint?.isActive = false
+            topConstraint?.isActive = true
+            topConstraint?.constant = 4
+            bottomConstraint?.isActive = true
+            bottomConstraint?.constant = 4
+        }
     }
 
     @objc private func closeButtonTapped() {
@@ -279,21 +360,4 @@ public final class ChipsView: UIView {
     @objc private func viewTapped() {
         onTap?()
     }
-}
-
-// MARK: - ChipsColors
-
-/// Color constants for ChipsView component.
-public enum ChipsColors {
-    /// Primary green color (#40B259)
-    public static let backgroundActive = UIColor(red: 64/255, green: 178/255, blue: 89/255, alpha: 1)
-
-    /// 8% black background
-    public static let backgroundDefault = UIColor(white: 0, alpha: 0.08)
-
-    /// 90% black text
-    public static let textPrimary = UIColor(white: 0, alpha: 0.9)
-
-    /// 60% black text for secondary elements
-    public static let textSecondary = UIColor(white: 0, alpha: 0.6)
 }
