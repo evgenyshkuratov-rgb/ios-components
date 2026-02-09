@@ -1,108 +1,133 @@
 import UIKit
 
-final class ComponentListVC: UITableViewController {
+final class ComponentListVC: UIViewController {
 
     private let components: [(name: String, description: String, viewController: () -> UIViewController)] = [
         ("ChipsView", "Filter chips with Default, Active, and Avatar states", { ChipsViewPreviewVC() })
     ]
 
-    private var componentsCountLabel: UILabel!
-    private var iconsCountLabel: UILabel!
-    private var colorsCountLabel: UILabel!
-    private var componentsTimeLabel: UILabel!
-    private var iconsTimeLabel: UILabel!
-    private var colorsTimeLabel: UILabel!
+    private let scrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        return sv
+    }()
+
+    private let stackView: UIStackView = {
+        let sv = UIStackView()
+        sv.axis = .vertical
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        return sv
+    }()
+
+    private let statusLabel: UILabel = {
+        let label = UILabel()
+        label.font = DSTypography.caption
+        label.textColor = DSColors.textTertiary
+        return label
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.largeTitleDisplayMode = .never
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "ComponentCell")
-        setupHeaderView()
+        view.backgroundColor = DSColors.backgroundBase
+        setupLayout()
+        buildContent()
         fetchCounts()
     }
 
-    // MARK: - Header
-
-    private func makePill(text: String) -> (view: UIView, label: UILabel, timeLabel: UILabel) {
-        let label = UILabel()
-        label.text = text
-        label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .secondaryLabel
-
-        let timeLabel = UILabel()
-        timeLabel.font = .systemFont(ofSize: 10, weight: .regular)
-        timeLabel.textColor = .tertiaryLabel
-
-        let stack = UIStackView(arrangedSubviews: [label, timeLabel])
-        stack.axis = .vertical
-        stack.spacing = 2
-
-        let pill = UIView()
-        pill.backgroundColor = .secondarySystemBackground
-        pill.layer.cornerRadius = 12
-        pill.layoutMargins = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        pill.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: pill.layoutMarginsGuide.topAnchor),
-            stack.bottomAnchor.constraint(equalTo: pill.layoutMarginsGuide.bottomAnchor),
-            stack.leadingAnchor.constraint(equalTo: pill.layoutMarginsGuide.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: pill.layoutMarginsGuide.trailingAnchor)
-        ])
-
-        return (pill, label, timeLabel)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
-    private func setupHeaderView() {
-        let componentsPill = makePill(text: "Components: ...")
-        let iconsPill = makePill(text: "Icons: ...")
-        let colorsPill = makePill(text: "Colors: ...")
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
 
-        componentsCountLabel = componentsPill.label
-        iconsCountLabel = iconsPill.label
-        colorsCountLabel = colorsPill.label
-        componentsTimeLabel = componentsPill.timeLabel
-        iconsTimeLabel = iconsPill.timeLabel
-        colorsTimeLabel = colorsPill.timeLabel
+    // MARK: - Layout
 
-        let pillStack = UIStackView(arrangedSubviews: [
-            componentsPill.view, iconsPill.view, colorsPill.view
+    private func setupLayout() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
-        pillStack.axis = .horizontal
-        pillStack.spacing = 8
-        pillStack.distribution = .fillEqually
+    }
+
+    private func buildContent() {
+        // Status row
+        stackView.addArrangedSubview(spacer(DSSpacing.listItemSpacing))
+
+        let statusWrapper = padded(statusLabel)
+        stackView.addArrangedSubview(statusWrapper)
+        statusLabel.text = "Loading\u{2026}"
+
+        // Title
+        stackView.addArrangedSubview(spacer(DSSpacing.listItemSpacing))
 
         let titleLabel = UILabel()
         titleLabel.text = "Components"
-        titleLabel.font = .systemFont(ofSize: 34, weight: .bold)
+        titleLabel.font = DSTypography.largeTitle
+        titleLabel.textColor = DSColors.textPrimary
+        stackView.addArrangedSubview(padded(titleLabel))
 
-        let mainStack = UIStackView(arrangedSubviews: [pillStack, titleLabel])
-        mainStack.axis = .vertical
-        mainStack.spacing = 12
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        // Cards
+        stackView.addArrangedSubview(spacer(DSSpacing.verticalSection))
 
-        let header = UIView()
-        header.addSubview(mainStack)
-        NSLayoutConstraint.activate([
-            mainStack.topAnchor.constraint(equalTo: header.topAnchor, constant: 12),
-            mainStack.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
-            mainStack.trailingAnchor.constraint(equalTo: header.trailingAnchor, constant: -16),
-            mainStack.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -8)
-        ])
+        for (index, component) in components.enumerated() {
+            let card = ComponentCardView(name: component.name, description: component.description) { [weak self] in
+                self?.navigateToComponent(at: index)
+            }
+            stackView.addArrangedSubview(padded(card))
 
-        tableView.tableHeaderView = header
-        sizeHeaderToFit()
+            if index < components.count - 1 {
+                stackView.addArrangedSubview(spacer(DSSpacing.listItemSpacing))
+            }
+        }
+
+        stackView.addArrangedSubview(spacer(DSSpacing.verticalSection))
     }
 
-    private func sizeHeaderToFit() {
-        guard let header = tableView.tableHeaderView else { return }
-        header.setNeedsLayout()
-        header.layoutIfNeeded()
-        header.frame.size.height = header.systemLayoutSizeFitting(
-            UIView.layoutFittingCompressedSize
-        ).height
-        tableView.tableHeaderView = header
+    // MARK: - Helpers
+
+    private func spacer(_ height: CGFloat) -> UIView {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.heightAnchor.constraint(equalToConstant: height).isActive = true
+        return v
+    }
+
+    private func padded(_ view: UIView) -> UIView {
+        let wrapper = UIView()
+        wrapper.translatesAutoresizingMaskIntoConstraints = false
+        view.translatesAutoresizingMaskIntoConstraints = false
+        wrapper.addSubview(view)
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: wrapper.topAnchor),
+            view.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor),
+            view.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor, constant: DSSpacing.horizontalPadding),
+            view.trailingAnchor.constraint(equalTo: wrapper.trailingAnchor, constant: -DSSpacing.horizontalPadding)
+        ])
+        return wrapper
+    }
+
+    // MARK: - Navigation
+
+    private func navigateToComponent(at index: Int) {
+        let component = components[index]
+        let vc = component.viewController()
+        vc.title = component.name
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     // MARK: - Data Loading
@@ -111,23 +136,40 @@ final class ComponentListVC: UITableViewController {
         guard let url = Bundle.main.url(forResource: "design-system-counts", withExtension: "json"),
               let data = try? Data(contentsOf: url),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            componentsCountLabel.text = "Components: —"
-            iconsCountLabel.text = "Icons: —"
-            colorsCountLabel.text = "Colors: —"
+            statusLabel.text = "Components \u{00B7} Icons \u{00B7} Colors"
             return
         }
-        if let count = json["components"] as? Int { componentsCountLabel.text = "Components: \(count)" }
-        if let count = json["icons"] as? Int { iconsCountLabel.text = "Icons: \(count)" }
-        if let count = json["colors"] as? Int { colorsCountLabel.text = "Colors: \(count)" }
 
-        componentsTimeLabel.text = relativeTime(from: json["components_updated"] as? String)
-        iconsTimeLabel.text = relativeTime(from: json["icons_updated"] as? String)
-        colorsTimeLabel.text = relativeTime(from: json["colors_updated"] as? String)
+        var parts: [String] = []
 
-        sizeHeaderToFit()
+        if let count = json["components"] as? Int {
+            var text = "\(count) Component\(count == 1 ? "" : "s")"
+            if let time = shortRelativeTime(from: json["components_updated"] as? String) {
+                text += " (\(time))"
+            }
+            parts.append(text)
+        }
+
+        if let count = json["icons"] as? Int {
+            var text = "\(count) Icons"
+            if let time = shortRelativeTime(from: json["icons_updated"] as? String) {
+                text += " (\(time))"
+            }
+            parts.append(text)
+        }
+
+        if let count = json["colors"] as? Int {
+            var text = "\(count) Colors"
+            if let time = shortRelativeTime(from: json["colors_updated"] as? String) {
+                text += " (\(time))"
+            }
+            parts.append(text)
+        }
+
+        statusLabel.text = parts.joined(separator: "  \u{00B7}  ")
     }
 
-    private func relativeTime(from isoString: String?) -> String? {
+    private func shortRelativeTime(from isoString: String?) -> String? {
         guard let isoString = isoString else { return nil }
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
@@ -138,35 +180,78 @@ final class ComponentListVC: UITableViewController {
         let hours = minutes / 60
         let days = hours / 24
 
-        if days > 0 { return "Updated \(days)d ago" }
-        if hours > 0 { return "Updated \(hours)h ago" }
-        if minutes > 0 { return "Updated \(minutes)m ago" }
-        return "Updated just now"
+        if days > 0 { return "\(days)d" }
+        if hours > 0 { return "\(hours)h" }
+        if minutes > 0 { return "\(minutes)m" }
+        return "now"
+    }
+}
+
+// MARK: - ComponentCardView
+
+private final class ComponentCardView: UIView {
+
+    private var onTap: (() -> Void)?
+
+    init(name: String, description: String, onTap: @escaping () -> Void) {
+        self.onTap = onTap
+        super.init(frame: .zero)
+
+        backgroundColor = DSColors.backgroundSecond
+        layer.cornerRadius = DSCornerRadius.card
+
+        let nameLabel = UILabel()
+        nameLabel.text = name
+        nameLabel.font = DSTypography.sectionHeader
+        nameLabel.textColor = DSColors.textPrimary
+
+        let descLabel = UILabel()
+        descLabel.text = description
+        descLabel.font = DSTypography.secondary
+        descLabel.textColor = DSColors.textSecondary
+        descLabel.numberOfLines = 2
+
+        let textStack = UIStackView(arrangedSubviews: [nameLabel, descLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 4
+
+        let arrowView = UIImageView()
+        if let arrow = DSIcon.named("arrow-right-s", size: 20) {
+            arrowView.image = arrow
+        }
+        arrowView.tintColor = DSColors.textTertiary
+        arrowView.contentMode = .center
+        arrowView.setContentHuggingPriority(.required, for: .horizontal)
+        arrowView.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        let hStack = UIStackView(arrangedSubviews: [textStack, arrowView])
+        hStack.axis = .horizontal
+        hStack.alignment = .center
+        hStack.spacing = DSSpacing.chipGap
+        hStack.translatesAutoresizingMaskIntoConstraints = false
+
+        addSubview(hStack)
+        NSLayoutConstraint.activate([
+            hStack.topAnchor.constraint(equalTo: topAnchor, constant: DSSpacing.innerCardPadding),
+            hStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -DSSpacing.innerCardPadding),
+            hStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: DSSpacing.innerCardPadding),
+            hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -DSSpacing.innerCardPadding)
+        ])
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        addGestureRecognizer(tap)
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        components.count
-    }
+    required init?(coder: NSCoder) { fatalError() }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ComponentCell", for: indexPath)
-        let component = components[indexPath.row]
-
-        var config = cell.defaultContentConfiguration()
-        config.text = component.name
-        config.secondaryText = component.description
-        config.secondaryTextProperties.color = .secondaryLabel
-        cell.contentConfiguration = config
-        cell.accessoryType = .disclosureIndicator
-
-        return cell
-    }
-
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let component = components[indexPath.row]
-        let vc = component.viewController()
-        vc.title = component.name
-        navigationController?.pushViewController(vc, animated: true)
+    @objc private func handleTap() {
+        UIView.animate(withDuration: 0.1, animations: {
+            self.alpha = 0.7
+        }) { _ in
+            UIView.animate(withDuration: 0.15) {
+                self.alpha = 1.0
+            }
+            self.onTap?()
+        }
     }
 }

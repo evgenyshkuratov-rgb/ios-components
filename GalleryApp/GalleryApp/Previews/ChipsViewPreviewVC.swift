@@ -12,7 +12,7 @@ final class ChipsViewPreviewVC: UIViewController {
     private let stackView: UIStackView = {
         let sv = UIStackView()
         sv.axis = .vertical
-        sv.spacing = 24
+        sv.spacing = DSSpacing.verticalSection
         sv.alignment = .leading
         sv.translatesAutoresizingMaskIntoConstraints = false
         return sv
@@ -20,7 +20,8 @@ final class ChipsViewPreviewVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        navigationItem.largeTitleDisplayMode = .never
+        view.backgroundColor = DSColors.backgroundBase
         setupLayout()
         addChipSections()
     }
@@ -35,59 +36,59 @@ final class ChipsViewPreviewVC: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 24),
-            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -24),
-            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: DSSpacing.verticalSection),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: DSSpacing.horizontalPadding),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -DSSpacing.horizontalPadding),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -DSSpacing.verticalSection),
+            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -DSSpacing.horizontalPadding * 2)
         ])
     }
 
     private func addChipSections() {
         // Section: Default State
-        addSection(title: "Default State")
+        let defaultSection = makeSectionStack(title: "Default State")
 
         let defaultSmall = ChipsView()
         defaultSmall.configure(
             text: "Filter option",
-            icon: UIImage(systemName: "person.2.fill"),
+            icon: DSIcon.named("user-2"),
             state: .default,
             size: .small
         )
-        stackView.addArrangedSubview(defaultSmall)
+        defaultSection.addArrangedSubview(defaultSmall)
 
         let defaultMedium = ChipsView()
         defaultMedium.configure(
             text: "Filter option",
-            icon: UIImage(systemName: "person.2.fill"),
+            icon: DSIcon.named("user-2"),
             state: .default,
             size: .medium
         )
-        stackView.addArrangedSubview(defaultMedium)
+        defaultSection.addArrangedSubview(defaultMedium)
 
         // Section: Active State
-        addSection(title: "Active State")
+        let activeSection = makeSectionStack(title: "Active State")
 
         let activeSmall = ChipsView()
         activeSmall.configure(
             text: "Filter option",
-            icon: UIImage(systemName: "person.2.fill"),
+            icon: DSIcon.named("user-2"),
             state: .active,
             size: .small
         )
-        stackView.addArrangedSubview(activeSmall)
+        activeSection.addArrangedSubview(activeSmall)
 
         let activeMedium = ChipsView()
         activeMedium.configure(
             text: "Filter option",
-            icon: UIImage(systemName: "person.2.fill"),
+            icon: DSIcon.named("user-2"),
             state: .active,
             size: .medium
         )
-        stackView.addArrangedSubview(activeMedium)
+        activeSection.addArrangedSubview(activeMedium)
 
         // Section: Avatar State
-        addSection(title: "Avatar State")
+        let avatarSection = makeSectionStack(title: "Avatar State")
 
         let avatarSmall = ChipsView()
         avatarSmall.configureAvatar(
@@ -96,7 +97,7 @@ final class ChipsViewPreviewVC: UIViewController {
             size: .small
         )
         avatarSmall.onClose = { print("Close tapped on small avatar chip") }
-        stackView.addArrangedSubview(avatarSmall)
+        avatarSection.addArrangedSubview(avatarSmall)
 
         let avatarMedium = ChipsView()
         avatarMedium.configureAvatar(
@@ -105,10 +106,10 @@ final class ChipsViewPreviewVC: UIViewController {
             size: .medium
         )
         avatarMedium.onClose = { print("Close tapped on medium avatar chip") }
-        stackView.addArrangedSubview(avatarMedium)
+        avatarSection.addArrangedSubview(avatarMedium)
 
         // Section: Without Icon
-        addSection(title: "Without Icon")
+        let noIconSection = makeSectionStack(title: "Without Icon")
 
         let noIconSmall = ChipsView()
         noIconSmall.configure(
@@ -117,42 +118,41 @@ final class ChipsViewPreviewVC: UIViewController {
             state: .default,
             size: .small
         )
-        stackView.addArrangedSubview(noIconSmall)
+        noIconSection.addArrangedSubview(noIconSmall)
     }
 
-    private func addSection(title: String) {
+    private func makeSectionStack(title: String) -> UIStackView {
         let label = UILabel()
         label.text = title
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
-        label.textColor = .secondaryLabel
-        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = DSTypography.sectionLabel
+        label.textColor = DSColors.textSecondary
 
-        // Add spacing before section (except first)
-        if stackView.arrangedSubviews.count > 0 {
-            let spacer = UIView()
-            spacer.translatesAutoresizingMaskIntoConstraints = false
-            spacer.heightAnchor.constraint(equalToConstant: 8).isActive = true
-            stackView.addArrangedSubview(spacer)
-        }
+        let inner = UIStackView(arrangedSubviews: [label])
+        inner.axis = .vertical
+        inner.spacing = DSSpacing.chipGap
+        inner.alignment = .leading
 
-        stackView.addArrangedSubview(label)
+        stackView.addArrangedSubview(inner)
+        return inner
     }
 
     private func createPlaceholderAvatar(size: CGFloat) -> UIImage {
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
         return renderer.image { context in
-            UIColor.systemGray4.setFill()
+            DSColors.backgroundSecond.setFill()
             context.fill(CGRect(origin: .zero, size: CGSize(width: size, height: size)))
 
-            let personIcon = UIImage(systemName: "person.fill")?.withTintColor(.systemGray2, renderingMode: .alwaysOriginal)
-            let iconSize = size * 0.6
-            let iconRect = CGRect(
-                x: (size - iconSize) / 2,
-                y: (size - iconSize) / 2,
-                width: iconSize,
-                height: iconSize
-            )
-            personIcon?.draw(in: iconRect)
+            if let personIcon = DSIcon.named("user", size: size * 0.6) {
+                let tintedIcon = personIcon.withTintColor(DSColors.textTertiary, renderingMode: .alwaysOriginal)
+                let iconSize = size * 0.6
+                let iconRect = CGRect(
+                    x: (size - iconSize) / 2,
+                    y: (size - iconSize) / 2,
+                    width: iconSize,
+                    height: iconSize
+                )
+                tintedIcon.draw(in: iconRect)
+            }
         }
     }
 }
