@@ -101,13 +101,14 @@ ios-components/
 │       ├── AppDelegate.swift     # App entry point, nav bar appearance config
 │       ├── ComponentListVC.swift # Wise-inspired catalog (brand circle, search bar, icon cards)
 │       ├── DesignSystem/
+│       │   ├── DSBrand.swift     # 5-brand enum (Frisbee/TDM/Sover/KCHAT/Sense New) → ChipsColorScheme
 │       │   ├── DSColors.swift    # Dynamic light/dark color tokens (from icons-library)
 │       │   ├── DSTypography.swift # Roboto text styles from Figma (37 styles)
 │       │   ├── DSSpacing.swift   # Spacing & corner radius tokens
 │       │   ├── DSIcon.swift      # Runtime SVG→UIImage renderer
 │       │   └── SVGPathParser.swift # Bezier path parser for SVG <path> elements
 │       ├── Previews/
-│       │   └── ChipsViewPreviewVC.swift  # Per-section stacks (8pt inner, 24pt between)
+│       │   └── ChipsViewPreviewVC.swift  # Interactive preview with state/size/theme/brand controls
 │       ├── Resources/
 │       │   ├── Info.plist
 │       │   ├── Icons/            # Bundled SVG icon files from icons-library
@@ -129,14 +130,44 @@ ios-components/
     └── plans/
         ├── 2026-02-05-ios-components-library-design.md
         ├── 2026-02-09-team-sync-awareness-design.md
-        └── 2026-02-09-team-sync-awareness-implementation.md
+        ├── 2026-02-09-team-sync-awareness-implementation.md
+        └── 2026-02-09-interactive-chips-preview.md
 ```
 
 ## Available components
 
 | Component | Description | States |
 |-----------|-------------|--------|
-| ChipsView | Filter chip with icon, text, and avatar variants | Default, Active, Avatar |
+| ChipsView | Filter chip with injectable theming (`ChipsColorScheme`), icon/text/avatar variants, Figma-exact layout | Default, Active, Avatar |
+
+### ChipsView Architecture
+
+**Injectable theming** via `ChipsColorScheme` struct (in the Components package):
+```swift
+public struct ChipsColorScheme {
+    public let backgroundDefault: UIColor   // Basic Colors/8%
+    public let backgroundActive: UIColor    // ThemeFirst/Primary/Default
+    public let textPrimary: UIColor         // Basic Colors/90%
+    public let closeIconTint: UIColor       // Basic Colors/50%
+}
+```
+
+**Two configure methods:**
+- `configure(text:icon:state:size:colorScheme:)` — for Default and Active states
+- `configureAvatar(name:avatarImage:closeIcon:size:colorScheme:)` — for Avatar state (close icon injected, no SF Symbols)
+
+**Sizes:** `.small` (32pt) and `.medium` (40pt) with Figma-exact padding per state/size.
+
+**Brand theming** via `DSBrand` enum in GalleryApp (5 brands):
+| Brand | Accent Light | Accent Dark |
+|-------|-------------|-------------|
+| Frisbee | `#40B259` | `#40B259` |
+| TDM | `#3E87DD` | `#3886E1` |
+| Sover | `#C7964F` | `#C4944D` |
+| KCHAT | `#EA5355` | `#E9474E` |
+| Sense New | `#7548AD` | `#7548AD` |
+
+Use `DSBrand.frisbee.chipsColorScheme(for: .light)` to get a themed `ChipsColorScheme`.
 
 ## Adding a new component
 
@@ -219,22 +250,58 @@ cd mcp-server && npm install
 // In code
 import Components
 
+// Default/Active state with injectable color scheme
 let chip = ChipsView()
-chip.configure(text: "Filter option", icon: IconsLibrary.icon(named: "user-2"), state: .active, size: .medium)
+chip.configure(
+    text: "Filter option",
+    icon: myIcon,
+    state: .active,
+    size: .medium,
+    colorScheme: ChipsColorScheme(
+        backgroundDefault: myBgColor,
+        backgroundActive: myAccentColor,
+        textPrimary: myTextColor,
+        closeIconTint: mySecondaryColor
+    )
+)
 chip.onTap = { print("Tapped") }
+
+// Avatar state with close icon (no SF Symbols)
+let avatarChip = ChipsView()
+avatarChip.configureAvatar(
+    name: "Имя",
+    avatarImage: avatarImg,
+    closeIcon: closeImg,
+    size: .small,
+    colorScheme: .default  // Frisbee Light fallback
+)
+avatarChip.onClose = { print("Removed") }
 ```
 
 ## GalleryApp
 
 Xcode project for browsing and testing components. Design is **Wise-inspired** — clean, spacious, and authentic. Main screen has a **hidden nav bar** with content rendered in a scroll view:
 
-1. **Green brand circle** (44pt, `successDefault` green, white grid-view icon) — top-left branding element
-2. **Large bold title** "Components" (`title1B`, 32pt)
+1. **Frisbee logo** (44pt height, original green `#11D16A`, rendered via `DSIcon.coloredNamed`) — top-left branding element
+2. **Large bold title** "Components Library" (`title1B`, 32pt)
 3. **Status line** (e.g., `1 Component (3d) · 276 Icons (1h) · 157 Colors (1h)`) in `subhead3R` tertiary color
-4. **Search bar** (`SearchBarView` — decorative, 48pt height, `backgroundSecond` fill, 12pt corners, search icon + placeholder)
-5. **Component cards** (`ComponentCard` — Wise-style: 52pt white circle icon container on left, title in `subtitle1M` + description in `subhead2R`, chevron arrow right, `backgroundSecond` fill, 16pt corners, spring tap animation)
+4. **Search bar** (`SearchBarView` — functional UITextField, 48pt height, `backgroundSecond` fill, 12pt corners, search icon + editable text, filters components by name)
+5. **Component cards** (`ComponentCard` — text-only: title in `subtitle1M` + description in `subhead2R`, chevron arrow right, `backgroundSecond` fill, 16pt corners, spring tap animation)
 
-The nav bar reappears on push to preview screens. ChipsView preview uses **per-section stacks** (8pt spacing within sections, 24pt between sections).
+The nav bar reappears on push to preview screens.
+
+### Interactive Component Previews
+
+Each component preview page has two zones:
+
+1. **Preview container** — rounded rect (16pt corners, `backgroundSecond` fill) showing the live component centered. Background updates with brand/theme selection.
+2. **Controls panel** — segmented controls to interactively change component properties:
+   - **State**: Component-specific states (e.g., Default / Active / Avatar)
+   - **Size**: Available size variants
+   - **Theme**: System / Light / Dark (overrides `userInterfaceStyle` on preview container)
+   - **Brand**: Frisbee / TDM / Sover / KCHAT / Sense New (switches `ChipsColorScheme` via `DSBrand`)
+
+The component is destroyed and re-created on each control change (simplest approach, avoids state management complexity).
 
 ### Status badges build phase
 
@@ -262,6 +329,7 @@ When working on this repo:
 - **ICONS AND COLORS**: Read and follow the "Design System Rules (MANDATORY)" section above. Use ONLY icons-library icons and color tokens. No SF Symbols. No hardcoded colors. No system colors. Call `list_icons`, `get_icon`, and `list_colors` MCP tools to discover available assets before building any UI.
 - **TYPOGRAPHY**: Use ONLY `DSTypography` styles (Roboto). No `.systemFont()`, no SF Pro, no custom sizes. In Components package, use the `robotoFont(size:weight:)` helper. Call `DSTypography.style.font` for UIFont or `.apply(to:)` for full line height + letter spacing.
 - **DESIGN PRINCIPLES**: Follow spacing, corner radii, typography, and visual patterns defined above. These are extracted from approved reference designs and are binding.
+- **COMPONENT THEMING**: New components MUST use injectable color schemes (like `ChipsColorScheme`). No hardcoded colors in `Sources/Components/`. The GalleryApp preview uses `DSBrand` to inject brand-specific palettes. Close icons and other assets are injected via parameters — never use SF Symbols in component code.
 - **Source files**: Only edit files in `Sources/Components/` - never edit GalleryApp build artifacts
 - **Specs sync**: JSON specs in `specs/` are fetched live by MCP server via raw.githubusercontent.com
 - **Testing**: Always test components in GalleryApp before committing
