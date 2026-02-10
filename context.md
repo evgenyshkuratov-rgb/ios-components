@@ -158,6 +158,8 @@ public struct ChipsColorScheme {
 
 **Sizes:** `.small` (32pt) and `.medium` (40pt) with Figma-exact padding per state/size.
 
+**Avatar layout:** Fixed height (32/40pt), custom stack spacing (8pt avatar→name, 0pt name→close), close button sized to fit within chip (`height - 8`). Height constraint stays active — close button does not expand the chip.
+
 **Brand theming** via `DSBrand` enum in GalleryApp (5 brands):
 | Brand | Accent Light | Accent Dark |
 |-------|-------------|-------------|
@@ -282,11 +284,11 @@ avatarChip.onClose = { print("Removed") }
 
 Xcode project for browsing and testing components. Design is **Wise-inspired** — clean, spacious, and authentic. Main screen has a **hidden nav bar** with content rendered in a scroll view:
 
-1. **Frisbee logo** (44pt height, original green `#11D16A`, rendered via `DSIcon.coloredNamed`) — top-left branding element
+1. **Frisbee logo + theme toggle** — logo (44pt height, original green `#11D16A`, rendered via `DSIcon.coloredNamed`) on the left, **Light/Dark segmented control** on the right (toggles `window.overrideUserInterfaceStyle`, styled with `subhead4M` font, `chipBackground` fill, `backgroundSecond` selected tint)
 2. **Large bold title** "Components Library" (`title1B`, 32pt)
 3. **Status line** (e.g., `1 Component (3d) · 276 Icons (1h) · 157 Colors (1h)`) in `subhead3R` tertiary color
 4. **Search bar** (`SearchBarView` — functional UITextField, 48pt height, `backgroundSecond` fill, 12pt corners, search icon + editable text, filters components by name)
-5. **Component cards** (`ComponentCard` — text-only: title in `subtitle1M` + description in `subhead2R`, chevron arrow right, `backgroundSecond` fill, 16pt corners, spring tap animation)
+5. **Component cards** (`ComponentCard` — text-only: title in `subtitle1M` + description in `subhead2R`, chevron arrow right, `backgroundSecond` fill, 16pt corners, touch-based bounce animation: scales to 0.95 on press, spring bounce back on release)
 
 The nav bar reappears on push to preview screens.
 

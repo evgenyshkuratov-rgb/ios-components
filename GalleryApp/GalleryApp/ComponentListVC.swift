@@ -2,14 +2,15 @@ import UIKit
 
 final class ComponentListVC: UIViewController {
 
-    private let components: [(name: String, description: String, icon: String, viewController: () -> UIViewController)] = [
-        ("ChipsView", "Filter chips with Default, Active, and Avatar states", "label-24", { ChipsViewPreviewVC() })
+    private let components: [(name: String, description: String, viewController: () -> UIViewController)] = [
+        ("ChipsView", "Filter chips with Default, Active, and Avatar states", { ChipsViewPreviewVC() })
     ]
 
     private let scrollView: UIScrollView = {
         let sv = UIScrollView()
         sv.translatesAutoresizingMaskIntoConstraints = false
         sv.alwaysBounceVertical = true
+        sv.keyboardDismissMode = .onDrag
         return sv
     }()
 
@@ -20,7 +21,21 @@ final class ComponentListVC: UIViewController {
         return sv
     }()
 
+    private let cardsContainer: UIStackView = {
+        let sv = UIStackView()
+        sv.axis = .vertical
+        sv.spacing = DSSpacing.listItemSpacing
+        return sv
+    }()
+
     private let statusLabel = UILabel()
+    private var componentCardWrappers: [UIView] = []
+    private let themeSegment: UISegmentedControl = {
+        let sc = UISegmentedControl(items: ["Light", "Dark"])
+        sc.selectedSegmentIndex = 0
+        sc.translatesAutoresizingMaskIntoConstraints = false
+        return sc
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,15 +81,48 @@ final class ComponentListVC: UIViewController {
         // --- Top spacing ---
         contentStack.addArrangedSubview(spacer(28))
 
-        // --- Logo circle ---
-        let logoCircle = BrandCircleView(size: 44, iconName: "grid-view", iconSize: 22)
-        contentStack.addArrangedSubview(wrapped(logoCircle, leading: pad))
+        // --- Frisbee Logo + Theme Toggle ---
+        let logoRow = UIView()
+        logoRow.translatesAutoresizingMaskIntoConstraints = false
+
+        if let logo = DSIcon.coloredNamed("frisbee-logo", height: 44) {
+            let logoView = UIImageView(image: logo)
+            logoView.contentMode = .scaleAspectFit
+            logoView.translatesAutoresizingMaskIntoConstraints = false
+            logoRow.addSubview(logoView)
+            NSLayoutConstraint.activate([
+                logoView.leadingAnchor.constraint(equalTo: logoRow.leadingAnchor, constant: pad),
+                logoView.centerYAnchor.constraint(equalTo: logoRow.centerYAnchor),
+                logoView.topAnchor.constraint(equalTo: logoRow.topAnchor),
+                logoView.bottomAnchor.constraint(equalTo: logoRow.bottomAnchor)
+            ])
+        }
+
+        themeSegment.setTitleTextAttributes([
+            .font: DSTypography.subhead4M.font,
+            .foregroundColor: DSColors.textSecondary
+        ], for: .normal)
+        themeSegment.setTitleTextAttributes([
+            .font: DSTypography.subhead4M.font,
+            .foregroundColor: DSColors.textPrimary
+        ], for: .selected)
+        themeSegment.selectedSegmentTintColor = DSColors.backgroundSecond
+        themeSegment.backgroundColor = DSColors.chipBackground
+        themeSegment.addTarget(self, action: #selector(themeChanged), for: .valueChanged)
+
+        logoRow.addSubview(themeSegment)
+        NSLayoutConstraint.activate([
+            themeSegment.trailingAnchor.constraint(equalTo: logoRow.trailingAnchor, constant: -pad),
+            themeSegment.centerYAnchor.constraint(equalTo: logoRow.centerYAnchor)
+        ])
+
+        contentStack.addArrangedSubview(logoRow)
 
         contentStack.addArrangedSubview(spacer(20))
 
         // --- Title ---
         let titleLabel = UILabel()
-        DSTypography.title1B.apply(to: titleLabel, text: "Components")
+        DSTypography.title1B.apply(to: titleLabel, text: "Components Library")
         titleLabel.textColor = DSColors.textPrimary
         contentStack.addArrangedSubview(padded(titleLabel))
 
@@ -86,27 +134,40 @@ final class ComponentListVC: UIViewController {
 
         // --- Search bar ---
         contentStack.addArrangedSubview(spacer(24))
-        contentStack.addArrangedSubview(padded(SearchBarView()))
+        let search = SearchBarView()
+        search.onTextChanged = { [weak self] query in
+            self?.filterComponents(query: query)
+        }
+        contentStack.addArrangedSubview(padded(search))
 
         // --- Component cards ---
         contentStack.addArrangedSubview(spacer(28))
 
+        cardsContainer.translatesAutoresizingMaskIntoConstraints = false
         for (index, component) in components.enumerated() {
             let card = ComponentCard(
                 name: component.name,
-                description: component.description,
-                iconName: component.icon
+                description: component.description
             ) { [weak self] in
                 self?.navigateToComponent(at: index)
             }
-            contentStack.addArrangedSubview(padded(card))
-
-            if index < components.count - 1 {
-                contentStack.addArrangedSubview(spacer(DSSpacing.listItemSpacing))
-            }
+            let wrapper = padded(card)
+            componentCardWrappers.append(wrapper)
+            cardsContainer.addArrangedSubview(wrapper)
         }
+        contentStack.addArrangedSubview(cardsContainer)
 
         contentStack.addArrangedSubview(spacer(48))
+    }
+
+    // MARK: - Search
+
+    private func filterComponents(query: String) {
+        let q = query.lowercased().trimmingCharacters(in: .whitespaces)
+        for (index, wrapper) in componentCardWrappers.enumerated() {
+            let matches = q.isEmpty || components[index].name.lowercased().contains(q)
+            wrapper.isHidden = !matches
+        }
     }
 
     // MARK: - Helpers
@@ -143,6 +204,13 @@ final class ComponentListVC: UIViewController {
             child.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor, constant: leading)
         ])
         return wrapper
+    }
+
+    // MARK: - Theme
+
+    @objc private func themeChanged() {
+        let style: UIUserInterfaceStyle = themeSegment.selectedSegmentIndex == 0 ? .light : .dark
+        view.window?.overrideUserInterfaceStyle = style
     }
 
     // MARK: - Navigation
@@ -211,40 +279,22 @@ final class ComponentListVC: UIViewController {
     }
 }
 
-// MARK: - Brand Circle (green logo badge)
+// MARK: - Search Bar
 
-private final class BrandCircleView: UIView {
+private final class SearchBarView: UIView, UITextFieldDelegate {
 
-    init(size: CGFloat, iconName: String, iconSize: CGFloat) {
-        super.init(frame: .zero)
-        translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = DSColors.successDefault
-        layer.cornerRadius = size / 2
+    var onTextChanged: ((String) -> Void)?
 
-        NSLayoutConstraint.activate([
-            widthAnchor.constraint(equalToConstant: size),
-            heightAnchor.constraint(equalToConstant: size)
-        ])
-
-        if let icon = DSIcon.named(iconName, size: iconSize) {
-            let iv = UIImageView(image: icon)
-            iv.tintColor = DSColors.white100
-            iv.translatesAutoresizingMaskIntoConstraints = false
-            iv.contentMode = .center
-            addSubview(iv)
-            NSLayoutConstraint.activate([
-                iv.centerXAnchor.constraint(equalTo: centerXAnchor),
-                iv.centerYAnchor.constraint(equalTo: centerYAnchor)
-            ])
-        }
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-}
-
-// MARK: - Search Bar (decorative)
-
-private final class SearchBarView: UIView {
+    private let textField: UITextField = {
+        let tf = UITextField()
+        tf.font = DSTypography.body1R.font
+        tf.textColor = DSColors.textPrimary
+        tf.clearButtonMode = .whileEditing
+        tf.autocorrectionType = .no
+        tf.returnKeyType = .search
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        return tf
+    }()
 
     init() {
         super.init(frame: .zero)
@@ -252,6 +302,15 @@ private final class SearchBarView: UIView {
         backgroundColor = DSColors.backgroundSecond
         layer.cornerRadius = DSCornerRadius.inputField
         heightAnchor.constraint(equalToConstant: 48).isActive = true
+
+        textField.attributedPlaceholder = NSAttributedString(
+            string: "Search components\u{2026}",
+            attributes: [
+                .foregroundColor: DSColors.textTertiary,
+                .font: DSTypography.body1R.font
+            ]
+        )
+        textField.delegate = self
 
         let iconView = UIImageView()
         if let icon = DSIcon.named("search", size: 20) {
@@ -261,14 +320,8 @@ private final class SearchBarView: UIView {
         iconView.translatesAutoresizingMaskIntoConstraints = false
         iconView.contentMode = .center
 
-        let label = UILabel()
-        label.font = DSTypography.body1R.font
-        label.text = "Search components\u{2026}"
-        label.textColor = DSColors.textTertiary
-        label.translatesAutoresizingMaskIntoConstraints = false
-
         addSubview(iconView)
-        addSubview(label)
+        addSubview(textField)
 
         NSLayoutConstraint.activate([
             iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 14),
@@ -276,50 +329,38 @@ private final class SearchBarView: UIView {
             iconView.widthAnchor.constraint(equalToConstant: 20),
             iconView.heightAnchor.constraint(equalToConstant: 20),
 
-            label.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor),
-            label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -14)
+            textField.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
+            textField.centerYAnchor.constraint(equalTo: centerYAnchor),
+            textField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -14)
         ])
+
+        textField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
     }
 
     required init?(coder: NSCoder) { fatalError() }
+
+    @objc private func textDidChange() {
+        onTextChanged?(textField.text ?? "")
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 }
 
-// MARK: - Component Card (Wise-style)
+// MARK: - Component Card
 
 private final class ComponentCard: UIView {
 
     private var onTap: (() -> Void)?
 
-    init(name: String, description: String, iconName: String, onTap: @escaping () -> Void) {
+    init(name: String, description: String, onTap: @escaping () -> Void) {
         self.onTap = onTap
         super.init(frame: .zero)
 
         backgroundColor = DSColors.backgroundSecond
         layer.cornerRadius = DSCornerRadius.card
-
-        // --- Icon circle (white circle on gray card, like Wise) ---
-        let circleSize: CGFloat = 52
-        let iconCircle = UIView()
-        iconCircle.backgroundColor = DSColors.backgroundBase
-        iconCircle.layer.cornerRadius = circleSize / 2
-        iconCircle.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            iconCircle.widthAnchor.constraint(equalToConstant: circleSize),
-            iconCircle.heightAnchor.constraint(equalToConstant: circleSize)
-        ])
-
-        if let icon = DSIcon.named(iconName, size: 24) {
-            let iv = UIImageView(image: icon)
-            iv.tintColor = DSColors.textPrimary
-            iv.translatesAutoresizingMaskIntoConstraints = false
-            iv.contentMode = .center
-            iconCircle.addSubview(iv)
-            NSLayoutConstraint.activate([
-                iv.centerXAnchor.constraint(equalTo: iconCircle.centerXAnchor),
-                iv.centerYAnchor.constraint(equalTo: iconCircle.centerYAnchor)
-            ])
-        }
 
         // --- Text stack ---
         let nameLabel = UILabel()
@@ -347,7 +388,7 @@ private final class ComponentCard: UIView {
         chevron.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         // --- Horizontal layout ---
-        let hStack = UIStackView(arrangedSubviews: [iconCircle, textStack, chevron])
+        let hStack = UIStackView(arrangedSubviews: [textStack, chevron])
         hStack.axis = .horizontal
         hStack.alignment = .center
         hStack.spacing = 16
@@ -361,19 +402,29 @@ private final class ComponentCard: UIView {
             hStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
         ])
 
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
-    @objc private func handleTap() {
-        UIView.animate(withDuration: 0.08, animations: {
-            self.transform = CGAffineTransform(scaleX: 0.97, y: 0.97)
-        }) { _ in
-            UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: []) {
-                self.transform = .identity
-            }
-            self.onTap?()
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        UIView.animate(withDuration: 0.15, delay: 0, options: [.curveEaseIn, .allowUserInteraction]) {
+            self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        }
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0, options: [.allowUserInteraction]) {
+            self.transform = .identity
+        }
+        onTap?()
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0, options: [.allowUserInteraction]) {
+            self.transform = .identity
         }
     }
 }

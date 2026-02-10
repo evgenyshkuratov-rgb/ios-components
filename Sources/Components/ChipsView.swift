@@ -128,13 +128,13 @@ public final class ChipsView: UIView {
     private var iconHeightConstraint: NSLayoutConstraint?
     private var avatarWidthConstraint: NSLayoutConstraint?
     private var avatarHeightConstraint: NSLayoutConstraint?
+    private var closeWidthConstraint: NSLayoutConstraint?
+    private var closeHeightConstraint: NSLayoutConstraint?
 
     // Dynamic layout constraints
     private var leadingConstraint: NSLayoutConstraint?
     private var trailingConstraint: NSLayoutConstraint?
     private var centerYConstraint: NSLayoutConstraint?
-    private var topConstraint: NSLayoutConstraint?
-    private var bottomConstraint: NSLayoutConstraint?
 
     // MARK: - Initialization
 
@@ -242,13 +242,13 @@ public final class ChipsView: UIView {
         iconHeightConstraint = iconImageView.heightAnchor.constraint(equalToConstant: 20)
         avatarWidthConstraint = avatarImageView.widthAnchor.constraint(equalToConstant: currentSize.avatarSize)
         avatarHeightConstraint = avatarImageView.heightAnchor.constraint(equalToConstant: currentSize.avatarSize)
+        closeWidthConstraint = closeButton.widthAnchor.constraint(equalToConstant: 36)
+        closeHeightConstraint = closeButton.heightAnchor.constraint(equalToConstant: 36)
 
         // Dynamic layout constraints (created but managed via updatePadding)
         leadingConstraint = containerStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8)
         trailingConstraint = trailingAnchor.constraint(equalTo: containerStack.trailingAnchor, constant: 12)
         centerYConstraint = containerStack.centerYAnchor.constraint(equalTo: centerYAnchor)
-        topConstraint = containerStack.topAnchor.constraint(equalTo: topAnchor, constant: 4)
-        bottomConstraint = bottomAnchor.constraint(equalTo: containerStack.bottomAnchor, constant: 4)
 
         NSLayoutConstraint.activate([
             heightConstraint!,
@@ -263,15 +263,11 @@ public final class ChipsView: UIView {
             avatarWidthConstraint!,
             avatarHeightConstraint!,
 
-            closeButton.widthAnchor.constraint(equalToConstant: 36),
-            closeButton.heightAnchor.constraint(equalToConstant: 36),
+            closeWidthConstraint!,
+            closeHeightConstraint!,
 
             textLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 224)
         ])
-
-        // Top/bottom start inactive (used only for avatar state)
-        topConstraint?.isActive = false
-        bottomConstraint?.isActive = false
     }
 
     private func setupActions() {
@@ -333,23 +329,34 @@ public final class ChipsView: UIView {
             leadingConstraint?.constant = leadPad
             trailingConstraint?.constant = 12
 
-            // Deactivate top/bottom before activating centerY + height
-            topConstraint?.isActive = false
-            bottomConstraint?.isActive = false
             heightConstraint?.isActive = true
             centerYConstraint?.isActive = true
+
+            // Uniform 8pt gap, reset custom spacings
+            containerStack.spacing = 8
+            containerStack.setCustomSpacing(UIStackView.spacingUseDefault, after: avatarImageView)
+            containerStack.setCustomSpacing(UIStackView.spacingUseDefault, after: textLabel)
+
+            // Default close button size
+            closeWidthConstraint?.constant = 36
+            closeHeightConstraint?.constant = 36
 
         case .avatar:
             leadingConstraint?.constant = 4
             trailingConstraint?.constant = 0
 
-            // Deactivate centerY + height, let top/bottom determine height
-            centerYConstraint?.isActive = false
-            heightConstraint?.isActive = false
-            topConstraint?.isActive = true
-            topConstraint?.constant = 4
-            bottomConstraint?.isActive = true
-            bottomConstraint?.constant = 4
+            heightConstraint?.isActive = true
+            centerYConstraint?.isActive = true
+
+            // 8pt between avatar and name, no gap before close button
+            containerStack.spacing = 0
+            containerStack.setCustomSpacing(8, after: avatarImageView)
+            containerStack.setCustomSpacing(0, after: textLabel)
+
+            // Close button fits within chip (height minus 4pt top + 4pt bottom padding)
+            let closeSize = currentSize.height - 8
+            closeWidthConstraint?.constant = closeSize
+            closeHeightConstraint?.constant = closeSize
         }
     }
 
