@@ -294,21 +294,23 @@ The nav bar reappears on push to preview screens.
 
 ### Interactive Component Previews
 
-Each component preview page has two zones:
+Each component preview page has three zones, top to bottom:
 
-1. **Preview container** — rounded rect (16pt corners, `backgroundSecond` fill) showing the live component centered. Background updates with brand/theme selection.
-2. **Controls panel** — segmented controls to interactively change component properties:
-   - **State**: Component-specific states (e.g., Default / Active / Avatar)
-   - **Size**: Available size variants
-   - **Theme**: System / Light / Dark (overrides `userInterfaceStyle` on preview container)
-   - **Brand**: Frisbee / TDM / Sover / KCHAT / Sense New (switches `ChipsColorScheme` via `DSBrand`)
+1. **Brand selector** — segmented control (Frisbee / TDM / Sover / KCHAT / Sense New) above the preview, switches `ChipsColorScheme` via `DSBrand`
+2. **Preview container** — rounded rect (16pt corners, `backgroundSecond` fill) showing the live component centered. Background updates with brand/theme selection.
+3. **Controls panel** — below the preview, with aligned labels (fixed 52pt width):
+   - **State**: Custom dropdown (`DropdownControl`) — tap to open an options list directly below the control, with checkmark on selected item, chevron rotates on open. Scalable to any number of states.
+   - **Size**: Custom dropdown (`DropdownControl`) — same pattern as State. Scalable to any number of sizes.
+   - **Theme**: Light / Dark segmented control (overrides `userInterfaceStyle` on preview container)
+
+`DropdownControl` is a reusable UIView that shows a `DropdownOptionsView` (floating panel with shadow, 12pt corners, animated fade+slide) anchored directly below the control. Tapping one dropdown auto-dismisses the other.
 
 The component is destroyed and re-created on each control change (simplest approach, avoids state management complexity).
 
 ### Status badges build phase
 
-A pre-build "Sync Design System Counts" script phase (`scripts/sync-design-system-counts.sh`) automatically:
-1. Runs `git pull --ff-only` on both the icons-library and ios-components repos (cached — only pulls if >10 min since last sync, skips silently if offline)
+A pre-build "Sync Design System Counts" script phase (`scripts/sync-design-system-counts.sh`, marked `alwaysOutOfDate` so Xcode runs it on every build) automatically:
+1. Runs `git pull --ff-only` on both the icons-library and ios-components repos (always, no cache — ensures fresh data every build, skips silently if offline)
 2. Reads `metadata.json`, `colors.json`, and `specs/index.json` from the local repos
 3. Gets last commit dates for icons, colors, and components via `git log`
 4. Writes `GalleryApp/Resources/design-system-counts.json` with counts and ISO 8601 timestamps

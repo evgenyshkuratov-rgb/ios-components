@@ -5,23 +5,9 @@
 ICONS_REPO="${ICONS_REPO_PATH:-$HOME/Clode code projects/Icons library}"
 COMPS_ROOT="${SRCROOT:-.}/.."
 OUT="${SRCROOT:-.}/GalleryApp/Resources/design-system-counts.json"
-CACHE=/tmp/.gallery-sync-stamp
-MAX_AGE=600
-
-# Pull only if last sync was >10 min ago
-need_pull=0
-if [ ! -f "$CACHE" ]; then
-  need_pull=1
-else
-  age=$(( $(date +%s) - $(stat -f %m "$CACHE") ))
-  [ $age -gt $MAX_AGE ] && need_pull=1
-fi
-
-if [ $need_pull -eq 1 ]; then
-  git -C "$ICONS_REPO" pull --ff-only 2>/dev/null || true
-  git -C "$COMPS_ROOT" pull --ff-only 2>/dev/null || true
-  touch "$CACHE"
-fi
+# Always pull latest on every build (fast when already up-to-date)
+git -C "$ICONS_REPO" pull --ff-only 2>/dev/null || true
+git -C "$COMPS_ROOT" pull --ff-only 2>/dev/null || true
 
 python3 << 'PYEOF'
 import json, os, subprocess

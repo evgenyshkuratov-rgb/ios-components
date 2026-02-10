@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,18 +17,19 @@
 		A1000001233B0005 /* DSSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233B0006 /* DSSpacing.swift */; };
 		A1000001233B0007 /* SVGPathParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233B0008 /* SVGPathParser.swift */; };
 		A1000001233B0009 /* DSIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233B000A /* DSIcon.swift */; };
-		A1000001233B0040 /* DSBrand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233B0041 /* DSBrand.swift */; };
 		A1000001233B000B /* user-2.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B000C /* user-2.svg */; };
 		A1000001233B000D /* user.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B000E /* user.svg */; };
 		A1000001233B000F /* close-s.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0010 /* close-s.svg */; };
 		A1000001233B0011 /* arrow-right-s.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0012 /* arrow-right-s.svg */; };
+		A1000001233B0018 /* Roboto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0016 /* Roboto.ttf */; };
+		A1000001233B0019 /* RobotoMono.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0017 /* RobotoMono.ttf */; };
 		A1000001233B0031 /* search.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0030 /* search.svg */; };
 		A1000001233B0033 /* label-24.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0032 /* label-24.svg */; };
 		A1000001233B0035 /* grid-view.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0034 /* grid-view.svg */; };
 		A1000001233B0037 /* settings-24.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0036 /* settings-24.svg */; };
 		A1000001233B0039 /* frisbee-logo.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0038 /* frisbee-logo.svg */; };
-		A1000001233B0018 /* Roboto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0016 /* Roboto.ttf */; };
-		A1000001233B0019 /* RobotoMono.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0017 /* RobotoMono.ttf */; };
+		A1000001233B0040 /* DSBrand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233B0041 /* DSBrand.swift */; };
+		A1000001233B0042 /* toggle-down.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0043 /* toggle-down.svg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,18 +44,19 @@
 		A1000001233B0006 /* DSSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSSpacing.swift; sourceTree = "<group>"; };
 		A1000001233B0008 /* SVGPathParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVGPathParser.swift; sourceTree = "<group>"; };
 		A1000001233B000A /* DSIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSIcon.swift; sourceTree = "<group>"; };
-		A1000001233B0041 /* DSBrand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSBrand.swift; sourceTree = "<group>"; };
 		A1000001233B000C /* user-2.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "user-2.svg"; sourceTree = "<group>"; };
 		A1000001233B000E /* user.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = user.svg; sourceTree = "<group>"; };
 		A1000001233B0010 /* close-s.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "close-s.svg"; sourceTree = "<group>"; };
 		A1000001233B0012 /* arrow-right-s.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "arrow-right-s.svg"; sourceTree = "<group>"; };
+		A1000001233B0016 /* Roboto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Roboto.ttf; sourceTree = "<group>"; };
+		A1000001233B0017 /* RobotoMono.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = RobotoMono.ttf; sourceTree = "<group>"; };
 		A1000001233B0030 /* search.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = search.svg; sourceTree = "<group>"; };
 		A1000001233B0032 /* label-24.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "label-24.svg"; sourceTree = "<group>"; };
 		A1000001233B0034 /* grid-view.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "grid-view.svg"; sourceTree = "<group>"; };
 		A1000001233B0036 /* settings-24.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "settings-24.svg"; sourceTree = "<group>"; };
 		A1000001233B0038 /* frisbee-logo.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "frisbee-logo.svg"; sourceTree = "<group>"; };
-		A1000001233B0016 /* Roboto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Roboto.ttf; sourceTree = "<group>"; };
-		A1000001233B0017 /* RobotoMono.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = RobotoMono.ttf; sourceTree = "<group>"; };
+		A1000001233B0041 /* DSBrand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSBrand.swift; sourceTree = "<group>"; };
+		A1000001233B0043 /* toggle-down.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "toggle-down.svg"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,7 +110,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1000001233A0010 /* Root */ = {
+		A1000001233A0010 = {
 			isa = PBXGroup;
 			children = (
 				A1000001233A000C /* GalleryApp */,
@@ -139,6 +141,7 @@
 				A1000001233B0032 /* label-24.svg */,
 				A1000001233B0030 /* search.svg */,
 				A1000001233B0036 /* settings-24.svg */,
+				A1000001233B0043 /* toggle-down.svg */,
 				A1000001233B000E /* user.svg */,
 				A1000001233B000C /* user-2.svg */,
 			);
@@ -201,9 +204,9 @@
 				en,
 				Base,
 			);
-			mainGroup = A1000001233A0010 /* Root */;
+			mainGroup = A1000001233A0010;
 			packageReferences = (
-				A1000001233A0017 /* XCLocalSwiftPackageReference "../.." */,
+				A1000001233A0017 /* XCLocalSwiftPackageReference ".." */,
 			);
 			productRefGroup = A1000001233A000F /* Products */;
 			projectDirPath = "";
@@ -229,6 +232,7 @@
 				A1000001233B0035 /* grid-view.svg in Resources */,
 				A1000001233B0037 /* settings-24.svg in Resources */,
 				A1000001233B0039 /* frisbee-logo.svg in Resources */,
+				A1000001233B0042 /* toggle-down.svg in Resources */,
 				A1000001233B0018 /* Roboto.ttf in Resources */,
 				A1000001233B0019 /* RobotoMono.ttf in Resources */,
 			);
@@ -239,6 +243,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		A1000001233A0030 /* Sync Design System Counts */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -400,6 +405,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7239CC78Q3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GalleryApp/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -426,6 +432,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7239CC78Q3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GalleryApp/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -471,7 +478,7 @@
 /* Begin XCLocalSwiftPackageReference section */
 		A1000001233A0017 /* XCLocalSwiftPackageReference ".." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "..";
+			relativePath = ..;
 		};
 /* End XCLocalSwiftPackageReference section */
 

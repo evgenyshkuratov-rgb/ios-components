@@ -8,7 +8,7 @@ final class ChipsViewPreviewVC: UIViewController {
     private var selectedState: ChipsView.State = .default
     private var selectedSize: ChipsView.Size = .small
     private var selectedBrand: DSBrand = .frisbee
-    private var selectedStyle: UIUserInterfaceStyle = .unspecified
+    private var selectedStyle: UIUserInterfaceStyle = .light
 
     // MARK: - UI Elements
 
@@ -44,10 +44,23 @@ final class ChipsViewPreviewVC: UIViewController {
         return sv
     }()
 
-    private let stateSegment = UISegmentedControl(items: ["Default", "Active", "Avatar"])
-    private let sizeSegment = UISegmentedControl(items: ["32px", "40px"])
-    private let themeSegment = UISegmentedControl(items: ["System", "Light", "Dark"])
+    private lazy var stateDropdown = DropdownControl()
+    private lazy var sizeDropdown = DropdownControl()
+    private let themeSegment = UISegmentedControl(items: ["Light", "Dark"])
     private lazy var brandSegment = UISegmentedControl(items: DSBrand.allCases.map { $0.rawValue })
+
+    // MARK: - Menu Options
+
+    private let stateOptions: [(String, ChipsView.State)] = [
+        ("Default", .default),
+        ("Active", .active),
+        ("Avatar", .avatar)
+    ]
+
+    private let sizeOptions: [(String, ChipsView.Size)] = [
+        ("Small (32px)", .small),
+        ("Medium (40px)", .medium)
+    ]
 
     // MARK: - Lifecycle
 
@@ -58,14 +71,6 @@ final class ChipsViewPreviewVC: UIViewController {
         setupLayout()
         setupControls()
         rebuildChip()
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if selectedStyle == .unspecified,
-           traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            rebuildChip()
-        }
     }
 
     // MARK: - Layout
@@ -87,29 +92,30 @@ final class ChipsViewPreviewVC: UIViewController {
             contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -DSSpacing.horizontalPadding * 2)
         ])
 
+        // Brand selector (above preview)
+        contentStack.addArrangedSubview(brandSegment)
+
         // Preview container
         contentStack.addArrangedSubview(previewContainer)
         previewContainer.heightAnchor.constraint(equalToConstant: 160).isActive = true
 
-        // Controls stack
+        // Controls stack (below preview)
         contentStack.addArrangedSubview(controlsStack)
-
-        controlsStack.addArrangedSubview(makeControlRow(label: "State", control: stateSegment))
-        controlsStack.addArrangedSubview(makeControlRow(label: "Size", control: sizeSegment))
+        controlsStack.addArrangedSubview(makeControlRow(label: "State", control: stateDropdown))
+        controlsStack.addArrangedSubview(makeControlRow(label: "Size", control: sizeDropdown))
         controlsStack.addArrangedSubview(makeControlRow(label: "Theme", control: themeSegment))
-        controlsStack.addArrangedSubview(makeControlRow(label: "Brand", control: brandSegment))
     }
 
-    private func makeControlRow(label text: String, control: UISegmentedControl) -> UIStackView {
+    private func makeControlRow(label text: String, control: UIView) -> UIStackView {
         let label = UILabel()
         label.text = text
         label.font = DSTypography.subhead4M.font
         label.textColor = DSColors.textPrimary
-        label.setContentHuggingPriority(.required, for: .horizontal)
+        label.widthAnchor.constraint(equalToConstant: 52).isActive = true
 
         let row = UIStackView(arrangedSubviews: [label, control])
         row.axis = .horizontal
-        row.spacing = 12
+        row.spacing = 8
         row.alignment = .center
         return row
     }
@@ -117,42 +123,63 @@ final class ChipsViewPreviewVC: UIViewController {
     // MARK: - Controls Setup
 
     private func setupControls() {
-        stateSegment.selectedSegmentIndex = 0
-        sizeSegment.selectedSegmentIndex = 0
         themeSegment.selectedSegmentIndex = 0
         brandSegment.selectedSegmentIndex = 0
 
-        stateSegment.addTarget(self, action: #selector(controlChanged), for: .valueChanged)
-        sizeSegment.addTarget(self, action: #selector(controlChanged), for: .valueChanged)
-        themeSegment.addTarget(self, action: #selector(controlChanged), for: .valueChanged)
-        brandSegment.addTarget(self, action: #selector(controlChanged), for: .valueChanged)
+        themeSegment.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
+        brandSegment.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
+
+        // State dropdown
+        stateDropdown.label.text = stateOptions.first?.0
+        stateDropdown.onTap = { [weak self] in self?.toggleStateDropdown() }
+
+        // Size dropdown
+        sizeDropdown.label.text = sizeOptions.first?.0
+        sizeDropdown.onTap = { [weak self] in self?.toggleSizeDropdown() }
     }
 
-    @objc private func controlChanged() {
-        // Read state
-        switch stateSegment.selectedSegmentIndex {
-        case 0: selectedState = .default
-        case 1: selectedState = .active
-        case 2: selectedState = .avatar
-        default: break
+    private func toggleStateDropdown() {
+        sizeDropdown.dismissOptions()
+        if stateDropdown.isShowingOptions {
+            stateDropdown.dismissOptions()
+            return
         }
-
-        // Read size
-        switch sizeSegment.selectedSegmentIndex {
-        case 0: selectedSize = .small
-        case 1: selectedSize = .medium
-        default: break
+        let titles = stateOptions.map { $0.0 }
+        let selectedIndex = stateOptions.firstIndex { $0.1 == selectedState } ?? 0
+        stateDropdown.showOptions(titles: titles, selectedIndex: selectedIndex) { [weak self] index in
+            guard let self else { return }
+            self.selectedState = self.stateOptions[index].1
+            self.stateDropdown.label.text = self.stateOptions[index].0
+            self.rebuildChip()
         }
+    }
 
-        // Read theme
+    private func toggleSizeDropdown() {
+        stateDropdown.dismissOptions()
+        if sizeDropdown.isShowingOptions {
+            sizeDropdown.dismissOptions()
+            return
+        }
+        let titles = sizeOptions.map { $0.0 }
+        let selectedIndex = sizeOptions.firstIndex { $0.1 == selectedSize } ?? 0
+        sizeDropdown.showOptions(titles: titles, selectedIndex: selectedIndex) { [weak self] index in
+            guard let self else { return }
+            self.selectedSize = self.sizeOptions[index].1
+            self.sizeDropdown.label.text = self.sizeOptions[index].0
+            self.rebuildChip()
+        }
+    }
+
+    @objc private func segmentChanged() {
+        stateDropdown.dismissOptions()
+        sizeDropdown.dismissOptions()
+
         switch themeSegment.selectedSegmentIndex {
-        case 0: selectedStyle = .unspecified
-        case 1: selectedStyle = .light
-        case 2: selectedStyle = .dark
+        case 0: selectedStyle = .light
+        case 1: selectedStyle = .dark
         default: break
         }
 
-        // Read brand
         let brandIndex = brandSegment.selectedSegmentIndex
         if brandIndex >= 0, brandIndex < DSBrand.allCases.count {
             selectedBrand = DSBrand.allCases[brandIndex]
@@ -166,17 +193,10 @@ final class ChipsViewPreviewVC: UIViewController {
     private func rebuildChip() {
         currentChip?.removeFromSuperview()
 
-        let effectiveStyle: UIUserInterfaceStyle
-        if selectedStyle == .unspecified {
-            effectiveStyle = traitCollection.userInterfaceStyle
-        } else {
-            effectiveStyle = selectedStyle
-        }
-
-        previewContainer.backgroundColor = selectedBrand.backgroundSecond(for: effectiveStyle)
+        previewContainer.backgroundColor = selectedBrand.backgroundSecond(for: selectedStyle)
         previewContainer.overrideUserInterfaceStyle = selectedStyle
 
-        let colorScheme = selectedBrand.chipsColorScheme(for: effectiveStyle)
+        let colorScheme = selectedBrand.chipsColorScheme(for: selectedStyle)
 
         let chip = ChipsView()
 
@@ -192,13 +212,15 @@ final class ChipsViewPreviewVC: UIViewController {
         case .avatar:
             chip.configureAvatar(
                 name: "Имя",
-                avatarImage: createPlaceholderAvatar(size: selectedSize.avatarSize, brand: selectedBrand, style: effectiveStyle),
+                avatarImage: createPlaceholderAvatar(size: selectedSize.avatarSize, brand: selectedBrand, style: selectedStyle),
                 closeIcon: DSIcon.named("close-s", size: 24),
                 size: selectedSize,
                 colorScheme: colorScheme
             )
             chip.onClose = { print("Close tapped") }
         }
+
+        chip.onTap = { print("Chip tapped") }
 
         previewContainer.addSubview(chip)
         NSLayoutConstraint.activate([
@@ -209,7 +231,7 @@ final class ChipsViewPreviewVC: UIViewController {
         currentChip = chip
     }
 
-    // MARK: - Helpers
+    // MARK: - Placeholder Avatar
 
     private func createPlaceholderAvatar(size: CGFloat, brand: DSBrand, style: UIUserInterfaceStyle) -> UIImage {
         let bgColor = brand.backgroundSecond(for: style)
@@ -235,5 +257,206 @@ final class ChipsViewPreviewVC: UIViewController {
                 tintedIcon.draw(in: iconRect)
             }
         }
+    }
+}
+
+// MARK: - DropdownControl
+
+private final class DropdownControl: UIView {
+
+    let label: UILabel = {
+        let l = UILabel()
+        l.font = DSTypography.subhead2R.font
+        l.textColor = DSColors.textPrimary
+        return l
+    }()
+
+    private let chevronView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFit
+        iv.tintColor = DSColors.textSecondary
+        iv.image = DSIcon.named("toggle-down", size: 20)?
+            .withRenderingMode(.alwaysTemplate)
+        return iv
+    }()
+
+    var onTap: (() -> Void)?
+    private(set) var isShowingOptions = false
+    private var optionsView: DropdownOptionsView?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setup()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+
+    private func setup() {
+        backgroundColor = DSColors.backgroundSecond
+        layer.cornerRadius = DSCornerRadius.inputField
+        clipsToBounds = true
+
+        let stack = UIStackView(arrangedSubviews: [label, chevronView])
+        stack.axis = .horizontal
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            heightAnchor.constraint(equalToConstant: 44),
+
+            stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+            stack.centerYAnchor.constraint(equalTo: centerYAnchor),
+
+            chevronView.widthAnchor.constraint(equalToConstant: 20),
+            chevronView.heightAnchor.constraint(equalToConstant: 20),
+        ])
+
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
+    }
+
+    @objc private func tapped() {
+        onTap?()
+    }
+
+    func showOptions(titles: [String], selectedIndex: Int, onSelect: @escaping (Int) -> Void) {
+        dismissOptions()
+
+        guard let window = window else { return }
+
+        let optionsView = DropdownOptionsView(
+            titles: titles,
+            selectedIndex: selectedIndex
+        ) { [weak self] index in
+            onSelect(index)
+            self?.dismissOptions()
+        }
+
+        // Position below this control, aligned to its leading/trailing edges
+        let frameInWindow = convert(bounds, to: window)
+
+        optionsView.frame = CGRect(
+            x: frameInWindow.minX,
+            y: frameInWindow.maxY + 4,
+            width: frameInWindow.width,
+            height: CGFloat(titles.count) * 44
+        )
+
+        optionsView.alpha = 0
+        optionsView.transform = CGAffineTransform(translationX: 0, y: -8)
+        window.addSubview(optionsView)
+
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut) {
+            optionsView.alpha = 1
+            optionsView.transform = .identity
+        }
+
+        self.optionsView = optionsView
+        isShowingOptions = true
+
+        // Rotate chevron
+        UIView.animate(withDuration: 0.2) {
+            self.chevronView.transform = CGAffineTransform(rotationAngle: .pi)
+        }
+    }
+
+    func dismissOptions() {
+        guard isShowingOptions, let optionsView else { return }
+        isShowingOptions = false
+
+        UIView.animate(withDuration: 0.15, delay: 0, options: .curveEaseIn, animations: {
+            optionsView.alpha = 0
+            optionsView.transform = CGAffineTransform(translationX: 0, y: -8)
+            self.chevronView.transform = .identity
+        }) { _ in
+            optionsView.removeFromSuperview()
+        }
+
+        self.optionsView = nil
+    }
+}
+
+// MARK: - DropdownOptionsView
+
+private final class DropdownOptionsView: UIView {
+
+    private let onSelect: (Int) -> Void
+
+    init(titles: [String], selectedIndex: Int, onSelect: @escaping (Int) -> Void) {
+        self.onSelect = onSelect
+        super.init(frame: .zero)
+
+        backgroundColor = DSColors.backgroundSheet
+        layer.cornerRadius = DSCornerRadius.inputField
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.12
+        layer.shadowRadius = 12
+        layer.shadowOffset = CGSize(width: 0, height: 4)
+
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: topAnchor),
+            stack.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: trailingAnchor),
+            stack.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+
+        for (index, title) in titles.enumerated() {
+            let row = makeRow(title: title, isSelected: index == selectedIndex, index: index)
+            stack.addArrangedSubview(row)
+        }
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    private func makeRow(title: String, isSelected: Bool, index: Int) -> UIView {
+        let container = UIView()
+        container.heightAnchor.constraint(equalToConstant: 44).isActive = true
+
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = isSelected ? DSTypography.subhead4M.font : DSTypography.subhead2R.font
+        titleLabel.textColor = DSColors.textPrimary
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(titleLabel)
+
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            titleLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+        ])
+
+        if isSelected {
+            let check = UIImageView()
+            check.image = DSIcon.named("done", size: 20)?.withRenderingMode(.alwaysTemplate)
+            check.tintColor = DSColors.textPrimary
+            check.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(check)
+
+            NSLayoutConstraint.activate([
+                check.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -12),
+                check.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+                check.widthAnchor.constraint(equalToConstant: 20),
+                check.heightAnchor.constraint(equalToConstant: 20),
+            ])
+        }
+
+        container.tag = index
+        container.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(rowTapped(_:))))
+
+        return container
+    }
+
+    @objc private func rowTapped(_ gesture: UITapGestureRecognizer) {
+        guard let tag = gesture.view?.tag else { return }
+        onSelect(tag)
     }
 }
