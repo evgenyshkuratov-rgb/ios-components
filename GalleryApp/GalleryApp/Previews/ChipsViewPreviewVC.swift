@@ -73,6 +73,12 @@ final class ChipsViewPreviewVC: UIViewController {
         rebuildChip()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stateDropdown.dismissOptions()
+        sizeDropdown.dismissOptions()
+    }
+
     // MARK: - Layout
 
     private func setupLayout() {
@@ -245,9 +251,9 @@ final class ChipsViewPreviewVC: UIViewController {
                 cornerRadius: size / 2
             ).fill()
 
-            if let personIcon = DSIcon.named("user", size: size * 0.6) {
+            let iconSize = size * 0.6
+            if let personIcon = DSIcon.named("user", size: iconSize) {
                 let tintedIcon = personIcon.withTintColor(iconTint, renderingMode: .alwaysOriginal)
-                let iconSize = size * 0.6
                 let iconRect = CGRect(
                     x: (size - iconSize) / 2,
                     y: (size - iconSize) / 2,
@@ -262,7 +268,7 @@ final class ChipsViewPreviewVC: UIViewController {
 
 // MARK: - DropdownControl
 
-private final class DropdownControl: UIView {
+fileprivate final class DropdownControl: UIView {
 
     let label: UILabel = {
         let l = UILabel()
@@ -283,6 +289,7 @@ private final class DropdownControl: UIView {
     var onTap: (() -> Void)?
     private(set) var isShowingOptions = false
     private var optionsView: DropdownOptionsView?
+    private var backdropView: UIView?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -324,6 +331,10 @@ private final class DropdownControl: UIView {
         onTap?()
     }
 
+    @objc private func backdropTapped() {
+        dismissOptions()
+    }
+
     func showOptions(titles: [String], selectedIndex: Int, onSelect: @escaping (Int) -> Void) {
         dismissOptions()
 
@@ -347,6 +358,12 @@ private final class DropdownControl: UIView {
             height: CGFloat(titles.count) * 44
         )
 
+        let backdrop = UIView(frame: window.bounds)
+        backdrop.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        backdrop.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(backdropTapped)))
+        window.addSubview(backdrop)
+        self.backdropView = backdrop
+
         optionsView.alpha = 0
         optionsView.transform = CGAffineTransform(translationX: 0, y: -8)
         window.addSubview(optionsView)
@@ -369,6 +386,9 @@ private final class DropdownControl: UIView {
         guard isShowingOptions, let optionsView else { return }
         isShowingOptions = false
 
+        backdropView?.removeFromSuperview()
+        backdropView = nil
+
         UIView.animate(withDuration: 0.15, delay: 0, options: .curveEaseIn, animations: {
             optionsView.alpha = 0
             optionsView.transform = CGAffineTransform(translationX: 0, y: -8)
@@ -383,7 +403,7 @@ private final class DropdownControl: UIView {
 
 // MARK: - DropdownOptionsView
 
-private final class DropdownOptionsView: UIView {
+fileprivate final class DropdownOptionsView: UIView {
 
     private let onSelect: (Int) -> Void
 

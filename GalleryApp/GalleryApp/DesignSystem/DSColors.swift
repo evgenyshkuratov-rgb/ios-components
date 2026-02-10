@@ -10,16 +10,7 @@ enum DSColors {
     static let textSecondary = dynamicColor(light: "#00000080", dark: "#FFFFFF80")
     static let textTertiary = dynamicColor(light: "#0000004d", dark: "#FFFFFF4d")
 
-    static let separator = dynamicColor(light: "#0000001a", dark: "#FFFFFF1a")
     static let chipBackground = dynamicColor(light: "#00000014", dark: "#FFFFFF14")
-    static let subtleBackground = dynamicColor(light: "#0000000f", dark: "#FFFFFF0f")
-
-    static let successDefault = dynamicColor(light: "#40B259", dark: "#40B259")
-    static let dangerDefault = dynamicColor(light: "#E06141", dark: "#E06141")
-    static let warningDefault = dynamicColor(light: "#DC9B1C", dark: "#DC9B1C")
-
-    static let white100 = UIColor.white
-    static let badgeMuted = dynamicColor(light: "#C9C9C9", dark: "#484848")
 
     // MARK: - Helpers
 

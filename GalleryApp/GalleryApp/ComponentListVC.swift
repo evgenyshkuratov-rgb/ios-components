@@ -76,12 +76,40 @@ final class ComponentListVC: UIViewController {
     }
 
     private func buildContent() {
-        let pad: CGFloat = DSSpacing.horizontalPadding
+        contentStack.addArrangedSubview(spacer(28))
+        contentStack.addArrangedSubview(makeLogoRow())
+        contentStack.addArrangedSubview(spacer(20))
 
-        // --- Top spacing ---
+        let (titleView, statusView) = makeStatusSection()
+        contentStack.addArrangedSubview(titleView)
+        contentStack.addArrangedSubview(spacer(6))
+        contentStack.addArrangedSubview(statusView)
+
+        contentStack.addArrangedSubview(spacer(24))
+        contentStack.addArrangedSubview(padded(makeSearchBar()))
+
+        // --- Component cards ---
         contentStack.addArrangedSubview(spacer(28))
 
-        // --- Frisbee Logo + Theme Toggle ---
+        cardsContainer.translatesAutoresizingMaskIntoConstraints = false
+        for (index, component) in components.enumerated() {
+            let card = ComponentCard(
+                name: component.name,
+                description: component.description
+            ) { [weak self] in
+                self?.navigateToComponent(at: index)
+            }
+            let wrapper = padded(card)
+            componentCardWrappers.append(wrapper)
+            cardsContainer.addArrangedSubview(wrapper)
+        }
+        contentStack.addArrangedSubview(cardsContainer)
+
+        contentStack.addArrangedSubview(spacer(48))
+    }
+
+    private func makeLogoRow() -> UIView {
+        let pad: CGFloat = DSSpacing.horizontalPadding
         let logoRow = UIView()
         logoRow.translatesAutoresizingMaskIntoConstraints = false
 
@@ -116,48 +144,26 @@ final class ComponentListVC: UIViewController {
             themeSegment.centerYAnchor.constraint(equalTo: logoRow.centerYAnchor)
         ])
 
-        contentStack.addArrangedSubview(logoRow)
+        return logoRow
+    }
 
-        contentStack.addArrangedSubview(spacer(20))
-
-        // --- Title ---
+    private func makeStatusSection() -> (title: UIView, status: UIView) {
         let titleLabel = UILabel()
         DSTypography.title1B.apply(to: titleLabel, text: "Components Library")
         titleLabel.textColor = DSColors.textPrimary
-        contentStack.addArrangedSubview(padded(titleLabel))
 
-        // --- Status line ---
-        contentStack.addArrangedSubview(spacer(6))
         DSTypography.subhead3R.apply(to: statusLabel, text: "Loading\u{2026}")
         statusLabel.textColor = DSColors.textTertiary
-        contentStack.addArrangedSubview(padded(statusLabel))
 
-        // --- Search bar ---
-        contentStack.addArrangedSubview(spacer(24))
+        return (padded(titleLabel), padded(statusLabel))
+    }
+
+    private func makeSearchBar() -> SearchBarView {
         let search = SearchBarView()
         search.onTextChanged = { [weak self] query in
             self?.filterComponents(query: query)
         }
-        contentStack.addArrangedSubview(padded(search))
-
-        // --- Component cards ---
-        contentStack.addArrangedSubview(spacer(28))
-
-        cardsContainer.translatesAutoresizingMaskIntoConstraints = false
-        for (index, component) in components.enumerated() {
-            let card = ComponentCard(
-                name: component.name,
-                description: component.description
-            ) { [weak self] in
-                self?.navigateToComponent(at: index)
-            }
-            let wrapper = padded(card)
-            componentCardWrappers.append(wrapper)
-            cardsContainer.addArrangedSubview(wrapper)
-        }
-        contentStack.addArrangedSubview(cardsContainer)
-
-        contentStack.addArrangedSubview(spacer(48))
+        return search
     }
 
     // MARK: - Search
@@ -189,19 +195,6 @@ final class ComponentListVC: UIViewController {
             child.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor),
             child.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor, constant: DSSpacing.horizontalPadding),
             child.trailingAnchor.constraint(equalTo: wrapper.trailingAnchor, constant: -DSSpacing.horizontalPadding)
-        ])
-        return wrapper
-    }
-
-    private func wrapped(_ child: UIView, leading: CGFloat) -> UIView {
-        let wrapper = UIView()
-        wrapper.translatesAutoresizingMaskIntoConstraints = false
-        child.translatesAutoresizingMaskIntoConstraints = false
-        wrapper.addSubview(child)
-        NSLayoutConstraint.activate([
-            child.topAnchor.constraint(equalTo: wrapper.topAnchor),
-            child.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor),
-            child.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor, constant: leading)
         ])
         return wrapper
     }
@@ -418,7 +411,9 @@ private final class ComponentCard: UIView {
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0, options: [.allowUserInteraction]) {
             self.transform = .identity
         }
-        onTap?()
+        if let touch = touches.first, bounds.contains(touch.location(in: self)) {
+            onTap?()
+        }
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {

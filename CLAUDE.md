@@ -81,7 +81,7 @@ All text MUST use **Roboto** font family. Only styles defined in `DSTypography` 
 
 ```
 ios-components/
-├── context.md                    # This file - project overview for LLMs
+├── CLAUDE.md                    # This file — project context for Claude Code
 ├── Package.swift                 # Swift Package manifest (iOS 14+)
 ├── README.md                     # Setup instructions for team
 ├── .gitignore                    # Build artifacts, node_modules, etc.

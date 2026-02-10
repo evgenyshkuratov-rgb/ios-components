@@ -67,6 +67,13 @@ public final class ChipsView: UIView {
         }
     }
 
+    private enum Layout {
+        static let iconSize: CGFloat = 20
+        static let maxTextWidth: CGFloat = 224
+        static let closeButtonSize: CGFloat = 36
+        static let avatarLetterSpacing: CGFloat = 0.25
+    }
+
     // MARK: - Public Properties
 
     public var onClose: (() -> Void)?
@@ -85,6 +92,9 @@ public final class ChipsView: UIView {
         if font.familyName == "Roboto" { return font }
         return systemFont
     }
+
+    private static let robotoMedium14: UIFont = robotoFont(size: 14, weight: .medium)
+    private static let robotoRegular14: UIFont = robotoFont(size: 14, weight: .regular)
 
     private let containerStack: UIStackView = {
         let stack = UIStackView()
@@ -175,6 +185,7 @@ public final class ChipsView: UIView {
         avatarImageView.isHidden = true
         closeButton.isHidden = true
 
+        accessibilityLabel = text
         updateAppearance()
     }
 
@@ -206,6 +217,8 @@ public final class ChipsView: UIView {
         closeButton.isHidden = false
         closeButton.setImage(closeIcon?.withRenderingMode(.alwaysTemplate), for: .normal)
 
+        accessibilityLabel = name
+        closeButton.accessibilityLabel = "Remove \(name)"
         updateAppearance()
     }
 
@@ -213,7 +226,6 @@ public final class ChipsView: UIView {
 
     private func setupView() {
         translatesAutoresizingMaskIntoConstraints = false
-        layer.cornerRadius = 16
         clipsToBounds = true
 
         // Set content hugging to ensure view wraps content
@@ -238,12 +250,12 @@ public final class ChipsView: UIView {
 
     private func setupConstraints() {
         heightConstraint = heightAnchor.constraint(equalToConstant: currentSize.height)
-        iconWidthConstraint = iconImageView.widthAnchor.constraint(equalToConstant: 20)
-        iconHeightConstraint = iconImageView.heightAnchor.constraint(equalToConstant: 20)
+        iconWidthConstraint = iconImageView.widthAnchor.constraint(equalToConstant: Layout.iconSize)
+        iconHeightConstraint = iconImageView.heightAnchor.constraint(equalToConstant: Layout.iconSize)
         avatarWidthConstraint = avatarImageView.widthAnchor.constraint(equalToConstant: currentSize.avatarSize)
         avatarHeightConstraint = avatarImageView.heightAnchor.constraint(equalToConstant: currentSize.avatarSize)
-        closeWidthConstraint = closeButton.widthAnchor.constraint(equalToConstant: 36)
-        closeHeightConstraint = closeButton.heightAnchor.constraint(equalToConstant: 36)
+        closeWidthConstraint = closeButton.widthAnchor.constraint(equalToConstant: Layout.closeButtonSize)
+        closeHeightConstraint = closeButton.heightAnchor.constraint(equalToConstant: Layout.closeButtonSize)
 
         // Dynamic layout constraints (created but managed via updatePadding)
         leadingConstraint = containerStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8)
@@ -266,7 +278,7 @@ public final class ChipsView: UIView {
             closeWidthConstraint!,
             closeHeightConstraint!,
 
-            textLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 224)
+            textLabel.widthAnchor.constraint(lessThanOrEqualToConstant: Layout.maxTextWidth)
         ])
     }
 
@@ -278,40 +290,35 @@ public final class ChipsView: UIView {
     }
 
     private func updateAppearance() {
+        isAccessibilityElement = true
+        accessibilityTraits = .button
+
         heightConstraint?.constant = currentSize.height
         avatarWidthConstraint?.constant = currentSize.avatarSize
         avatarHeightConstraint?.constant = currentSize.avatarSize
         layer.cornerRadius = currentSize.height / 2
 
         switch currentState {
-        case .default:
-            backgroundColor = colorScheme.backgroundDefault
+        case .default, .active:
+            backgroundColor = currentState == .active
+                ? colorScheme.backgroundActive
+                : colorScheme.backgroundDefault
             iconImageView.tintColor = colorScheme.textPrimary
-            let defaultText = textLabel.text
+            let currentText = textLabel.text
             textLabel.attributedText = nil
-            textLabel.text = defaultText
-            textLabel.font = ChipsView.robotoFont(size: 14, weight: .medium)
-            textLabel.textColor = colorScheme.textPrimary
-
-        case .active:
-            backgroundColor = colorScheme.backgroundActive
-            iconImageView.tintColor = colorScheme.textPrimary
-            let activeText = textLabel.text
-            textLabel.attributedText = nil
-            textLabel.text = activeText
-            textLabel.font = ChipsView.robotoFont(size: 14, weight: .medium)
+            textLabel.text = currentText
+            textLabel.font = Self.robotoMedium14
             textLabel.textColor = colorScheme.textPrimary
 
         case .avatar:
             backgroundColor = colorScheme.backgroundDefault
             closeButton.tintColor = colorScheme.closeIconTint
-            let font = ChipsView.robotoFont(size: 14, weight: .regular)
             if let text = textLabel.text {
                 textLabel.attributedText = NSAttributedString(
                     string: text,
                     attributes: [
-                        .font: font,
-                        .kern: 0.25,
+                        .font: Self.robotoRegular14,
+                        .kern: Layout.avatarLetterSpacing,
                         .foregroundColor: colorScheme.textPrimary
                     ]
                 )
@@ -338,8 +345,8 @@ public final class ChipsView: UIView {
             containerStack.setCustomSpacing(UIStackView.spacingUseDefault, after: textLabel)
 
             // Default close button size
-            closeWidthConstraint?.constant = 36
-            closeHeightConstraint?.constant = 36
+            closeWidthConstraint?.constant = Layout.closeButtonSize
+            closeHeightConstraint?.constant = Layout.closeButtonSize
 
         case .avatar:
             leadingConstraint?.constant = 4

@@ -2,14 +2,19 @@ import UIKit
 
 enum DSIcon {
 
+    private static let cache = NSCache<NSString, UIImage>()
+
     static func named(_ name: String, size: CGFloat = 24) -> UIImage? {
+        let key = "\(name)_\(size)" as NSString
+        if let cached = cache.object(forKey: key) { return cached }
+
         guard let url = Bundle.main.url(forResource: name, withExtension: "svg"),
               let svgString = try? String(contentsOf: url, encoding: .utf8) else {
             return nil
         }
 
         let viewBox = parseViewBox(svgString) ?? CGRect(x: 0, y: 0, width: 24, height: 24)
-        let paths = parsePaths(svgString)
+        let paths = parsePaths(svgString, extractColor: false)
 
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
         let image = renderer.image { context in
@@ -25,7 +30,40 @@ enum DSIcon {
             }
         }
 
-        return image.withRenderingMode(.alwaysTemplate)
+        let result = image.withRenderingMode(.alwaysTemplate)
+        cache.setObject(result, forKey: key)
+        return result
+    }
+
+    /// Renders an SVG with its original fill colors, maintaining aspect ratio.
+    static func coloredNamed(_ name: String, height: CGFloat) -> UIImage? {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "svg"),
+              let svgString = try? String(contentsOf: url, encoding: .utf8) else {
+            return nil
+        }
+
+        let viewBox = parseViewBox(svgString) ?? CGRect(x: 0, y: 0, width: 24, height: 24)
+        let paths = parsePaths(svgString, extractColor: true)
+
+        let aspectRatio = viewBox.width / viewBox.height
+        let width = height * aspectRatio
+        let size = CGSize(width: width, height: height)
+
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { context in
+            let scaleX = width / viewBox.width
+            let scaleY = height / viewBox.height
+            context.cgContext.translateBy(x: -viewBox.origin.x * scaleX,
+                                          y: -viewBox.origin.y * scaleY)
+            context.cgContext.scaleBy(x: scaleX, y: scaleY)
+
+            for (bezier, color) in paths {
+                color.setFill()
+                bezier.fill()
+            }
+        }
+
+        return image.withRenderingMode(.alwaysOriginal)
     }
 
     // MARK: - SVG Parsing
@@ -42,8 +80,8 @@ enum DSIcon {
         return CGRect(x: parts[0], y: parts[1], width: parts[2], height: parts[3])
     }
 
-    private static func parsePaths(_ svg: String) -> [(UIBezierPath, CAShapeLayerFillRule)] {
-        var results: [(UIBezierPath, CAShapeLayerFillRule)] = []
+    private static func parsePaths(_ svg: String, extractColor: Bool) -> [(UIBezierPath, UIColor)] {
+        var results: [(UIBezierPath, UIColor)] = []
         var searchStart = svg.startIndex
 
         while let pathStart = svg[searchStart...].range(of: "<path") {
@@ -56,7 +94,15 @@ enum DSIcon {
                 let fillRule: CAShapeLayerFillRule =
                     extractAttribute("fill-rule", from: tag) == "evenodd" ? .evenOdd : .nonZero
                 let bezier = SVGPathParser.parse(d, fillRule: fillRule)
-                results.append((bezier, fillRule))
+
+                let color: UIColor
+                if extractColor, let hex = extractAttribute("fill", from: tag), hex != "none" {
+                    color = UIColor(hex: hex)
+                } else {
+                    color = .black
+                }
+
+                results.append((bezier, color))
             }
 
             searchStart = tagEnd.upperBound
