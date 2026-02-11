@@ -45,7 +45,7 @@ final class ChipsViewPreviewVC: UIViewController {
     }()
 
     private lazy var stateDropdown = DropdownControl()
-    private lazy var sizeDropdown = DropdownControl()
+    private let sizeSegment = UISegmentedControl(items: ["Small (32px)", "Medium (40px)"])
     private let themeSegment = UISegmentedControl(items: ["Light", "Dark"])
     private lazy var brandSegment = UISegmentedControl(items: DSBrand.allCases.map { $0.rawValue })
 
@@ -55,11 +55,6 @@ final class ChipsViewPreviewVC: UIViewController {
         ("Default", .default),
         ("Active", .active),
         ("Avatar", .avatar)
-    ]
-
-    private let sizeOptions: [(String, ChipsView.Size)] = [
-        ("Small (32px)", .small),
-        ("Medium (40px)", .medium)
     ]
 
     // MARK: - Lifecycle
@@ -76,7 +71,6 @@ final class ChipsViewPreviewVC: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stateDropdown.dismissOptions()
-        sizeDropdown.dismissOptions()
     }
 
     // MARK: - Layout
@@ -108,7 +102,7 @@ final class ChipsViewPreviewVC: UIViewController {
         // Controls stack (below preview)
         contentStack.addArrangedSubview(controlsStack)
         controlsStack.addArrangedSubview(makeControlRow(label: "State", control: stateDropdown))
-        controlsStack.addArrangedSubview(makeControlRow(label: "Size", control: sizeDropdown))
+        controlsStack.addArrangedSubview(makeControlRow(label: "Size", control: sizeSegment))
         controlsStack.addArrangedSubview(makeControlRow(label: "Theme", control: themeSegment))
     }
 
@@ -129,23 +123,20 @@ final class ChipsViewPreviewVC: UIViewController {
     // MARK: - Controls Setup
 
     private func setupControls() {
+        sizeSegment.selectedSegmentIndex = 0
         themeSegment.selectedSegmentIndex = 0
         brandSegment.selectedSegmentIndex = 0
 
+        sizeSegment.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
         themeSegment.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
         brandSegment.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
 
-        // State dropdown
+        // State dropdown (3 options — stays as dropdown)
         stateDropdown.label.text = stateOptions.first?.0
         stateDropdown.onTap = { [weak self] in self?.toggleStateDropdown() }
-
-        // Size dropdown
-        sizeDropdown.label.text = sizeOptions.first?.0
-        sizeDropdown.onTap = { [weak self] in self?.toggleSizeDropdown() }
     }
 
     private func toggleStateDropdown() {
-        sizeDropdown.dismissOptions()
         if stateDropdown.isShowingOptions {
             stateDropdown.dismissOptions()
             return
@@ -160,25 +151,10 @@ final class ChipsViewPreviewVC: UIViewController {
         }
     }
 
-    private func toggleSizeDropdown() {
-        stateDropdown.dismissOptions()
-        if sizeDropdown.isShowingOptions {
-            sizeDropdown.dismissOptions()
-            return
-        }
-        let titles = sizeOptions.map { $0.0 }
-        let selectedIndex = sizeOptions.firstIndex { $0.1 == selectedSize } ?? 0
-        sizeDropdown.showOptions(titles: titles, selectedIndex: selectedIndex) { [weak self] index in
-            guard let self else { return }
-            self.selectedSize = self.sizeOptions[index].1
-            self.sizeDropdown.label.text = self.sizeOptions[index].0
-            self.rebuildChip()
-        }
-    }
-
     @objc private func segmentChanged() {
         stateDropdown.dismissOptions()
-        sizeDropdown.dismissOptions()
+
+        selectedSize = sizeSegment.selectedSegmentIndex == 0 ? .small : .medium
 
         switch themeSegment.selectedSegmentIndex {
         case 0: selectedStyle = .light

@@ -99,7 +99,7 @@ public final class CheckboxView: UIView {
     private let containerStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
-        stack.alignment = .top
+        stack.alignment = .center
         stack.spacing = Layout.textGap
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack

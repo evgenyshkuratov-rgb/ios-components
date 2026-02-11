@@ -88,12 +88,14 @@ ios-components/
 │
 ├── Sources/
 │   └── Components/
-│       └── ChipsView.swift       # Filter chip component
+│       ├── ChipsView.swift       # Filter chip component
+│       └── CheckboxView.swift    # Checkbox with square/circle shapes
 │
 ├── specs/
 │   ├── index.json                # Component index for list_components
 │   └── components/
-│       └── ChipsView.json        # Full ChipsView specification
+│       ├── ChipsView.json        # Full ChipsView specification
+│       └── CheckboxView.json     # Full CheckboxView specification
 │
 ├── GalleryApp/
 │   ├── GalleryApp.xcodeproj/     # Xcode project (includes "Sync Design System Counts" build phase)
@@ -101,14 +103,15 @@ ios-components/
 │       ├── AppDelegate.swift     # App entry point, nav bar appearance config
 │       ├── ComponentListVC.swift # Wise-inspired catalog (brand circle, search bar, icon cards)
 │       ├── DesignSystem/
-│       │   ├── DSBrand.swift     # 5-brand enum (Frisbee/TDM/Sover/KCHAT/Sense New) → ChipsColorScheme
+│       │   ├── DSBrand.swift     # 5-brand enum (Frisbee/TDM/Sover/KCHAT/Sense) → ChipsColorScheme
 │       │   ├── DSColors.swift    # Dynamic light/dark color tokens (from icons-library)
 │       │   ├── DSTypography.swift # Roboto text styles from Figma (37 styles)
 │       │   ├── DSSpacing.swift   # Spacing & corner radius tokens
 │       │   ├── DSIcon.swift      # Runtime SVG→UIImage renderer
 │       │   └── SVGPathParser.swift # Bezier path parser for SVG <path> elements
 │       ├── Previews/
-│       │   └── ChipsViewPreviewVC.swift  # Interactive preview with state/size/theme/brand controls
+│       │   ├── ChipsViewPreviewVC.swift     # Interactive preview with state/size/theme/brand controls
+│       │   └── CheckboxViewPreviewVC.swift  # Interactive checkbox preview with tap-to-toggle
 │       ├── Resources/
 │       │   ├── Info.plist
 │       │   ├── Icons/            # Bundled SVG icon files from icons-library
@@ -131,7 +134,8 @@ ios-components/
         ├── 2026-02-05-ios-components-library-design.md
         ├── 2026-02-09-team-sync-awareness-design.md
         ├── 2026-02-09-team-sync-awareness-implementation.md
-        └── 2026-02-09-interactive-chips-preview.md
+        ├── 2026-02-09-interactive-chips-preview.md
+        └── 2026-02-11-checkbox-component.md
 ```
 
 ## Available components
@@ -139,6 +143,7 @@ ios-components/
 | Component | Description | States |
 |-----------|-------------|--------|
 | ChipsView | Filter chip with injectable theming (`ChipsColorScheme`), icon/text/avatar variants, Figma-exact layout | Default, Active, Avatar |
+| CheckboxView | Checkbox with square/circle shapes, injectable theming (`CheckboxColorScheme`), animated toggle, optional text label | Checked/Unchecked, Enabled/Disabled |
 
 ### ChipsView Architecture
 
@@ -167,9 +172,35 @@ public struct ChipsColorScheme {
 | TDM | `#3E87DD` | `#3886E1` |
 | Sover | `#C7964F` | `#C4944D` |
 | KCHAT | `#EA5355` | `#E9474E` |
-| Sense New | `#7548AD` | `#7548AD` |
+| Sense | `#7548AD` | `#7548AD` |
 
 Use `DSBrand.frisbee.chipsColorScheme(for: .light)` to get a themed `ChipsColorScheme`.
+
+### CheckboxView Architecture
+
+**Injectable theming** via `CheckboxColorScheme` struct (in the Components package):
+```swift
+public struct CheckboxColorScheme {
+    public let borderEnabled: UIColor      // Basic Colors/55%
+    public let borderDisabled: UIColor     // Basic Colors/25%
+    public let checkedFill: UIColor        // ThemeFirst/Primary/Default (brand accent)
+    public let textEnabled: UIColor        // Basic Colors/50%
+    public let textDisabled: UIColor       // Basic Colors/25%
+}
+```
+
+**Configure method:**
+- `configure(text:shape:isChecked:isEnabled:checkedIcon:colorScheme:)` — icons injected as `UIImage`, host app loads and tints them
+
+**Shapes:** `.square` (6pt corner radius) and `.circle` (full round)
+
+**Layout (from Figma):** 24pt outer container, 20pt inner border view, 2pt border width, 8pt gap to text label. Text uses Body 5-R (Roboto Regular 14pt).
+
+**Animation:** Spring scale (0.5→1.0, damping 0.6, velocity 0.8) on check, fade on uncheck.
+
+**Icons:** 4 SVGs bundled from icons-library — `checkbox-def`, `checkbox-active` (square), `check-def-small`, `check-active-small` (circle). The host app tints checked icons with `colorScheme.checkedFill`.
+
+Use `DSBrand.frisbee.checkboxColorScheme(for: .light)` to get a themed `CheckboxColorScheme`.
 
 ## Adding a new component
 
@@ -278,6 +309,24 @@ avatarChip.configureAvatar(
     colorScheme: .default  // Frisbee Light fallback
 )
 avatarChip.onClose = { print("Removed") }
+
+// Checkbox with injectable color scheme and icon
+let checkbox = CheckboxView()
+checkbox.configure(
+    text: "Label",
+    shape: .square,
+    isChecked: false,
+    isEnabled: true,
+    checkedIcon: myCheckedIcon,  // pre-tinted UIImage
+    colorScheme: CheckboxColorScheme(
+        borderEnabled: myBorderColor,
+        borderDisabled: myDisabledBorder,
+        checkedFill: myAccentColor,
+        textEnabled: myTextColor,
+        textDisabled: myDisabledText
+    )
+)
+checkbox.onTap = { print("Toggled") }
 ```
 
 ## GalleryApp
@@ -296,12 +345,13 @@ The nav bar reappears on push to preview screens.
 
 Each component preview page has three zones, top to bottom:
 
-1. **Brand selector** — segmented control (Frisbee / TDM / Sover / KCHAT / Sense New) above the preview, switches `ChipsColorScheme` via `DSBrand`
+1. **Brand selector** — segmented control (Frisbee / TDM / Sover / KCHAT / Sense) above the preview, switches `ChipsColorScheme` via `DSBrand`
 2. **Preview container** — rounded rect (16pt corners, `backgroundSecond` fill) showing the live component centered. Background updates with brand/theme selection.
-3. **Controls panel** — below the preview, with aligned labels (fixed 52pt width):
-   - **State**: Custom dropdown (`DropdownControl`) — tap to open an options list directly below the control, with checkmark on selected item, chevron rotates on open. Scalable to any number of states.
-   - **Size**: Custom dropdown (`DropdownControl`) — same pattern as State. Scalable to any number of sizes.
-   - **Theme**: Light / Dark segmented control (overrides `userInterfaceStyle` on preview container)
+3. **Controls panel** — below the preview, with aligned labels (fixed 52pt width). Controls are chosen by option count:
+   - **2 options** → `UISegmentedControl` (e.g., Shape: Square/Circle, Theme: Light/Dark, Size: Small/Medium)
+   - **3+ options** → `DropdownControl` (e.g., State: Default/Active/Avatar)
+
+**Control type rule:** Use `UISegmentedControl` (tabs) for options with 2 or fewer choices. Use `DropdownControl` (custom dropdown) for options with 3+ choices.
 
 `DropdownControl` is a reusable UIView that shows a `DropdownOptionsView` (floating panel with shadow, 12pt corners, animated fade+slide) anchored directly below the control. Tapping one dropdown auto-dismisses the other.
 
