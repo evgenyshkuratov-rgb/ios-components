@@ -88,6 +88,18 @@ enum DSBrand: String, CaseIterable {
         }
     }
 
+    func basicColor25(for style: UIUserInterfaceStyle) -> UIColor {
+        DSBrand.cached(self, style, 6) {
+            style == .dark ? UIColor(hex: "#FFFFFF40") : UIColor(hex: "#00000040")
+        }
+    }
+
+    func basicColor55(for style: UIUserInterfaceStyle) -> UIColor {
+        DSBrand.cached(self, style, 7) {
+            style == .dark ? UIColor(hex: "#FFFFFF8c") : UIColor(hex: "#0000008c")
+        }
+    }
+
     // MARK: - ChipsView Integration
 
     func chipsColorScheme(for style: UIUserInterfaceStyle) -> ChipsColorScheme {

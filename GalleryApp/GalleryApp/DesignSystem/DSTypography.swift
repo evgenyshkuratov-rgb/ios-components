@@ -74,6 +74,9 @@ enum DSTypography {
     /// Body 3 — Medium 16pt, line 22
     static let body3M = DSTextStyle(font: roboto(size: 16, weight: .medium), lineHeight: 22, letterSpacing: 0)
 
+    /// Body 5 — Regular 14pt, line 16
+    static let body5R = DSTextStyle(font: roboto(size: 14, weight: .regular), lineHeight: 16, letterSpacing: 0)
+
     // MARK: - Subheads
 
     /// Subhead 2 — Regular 14pt, line 20
