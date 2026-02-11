@@ -1,0 +1,44 @@
+{
+  "name": "CheckboxView",
+  "description": "A checkbox component with Square (rounded rect) and Circle shapes. Supports checked/unchecked toggle with spring animation, enabled/disabled interactive states, and optional text label. Uses injectable CheckboxColorScheme for brand theming.",
+  "import": "import Components",
+  "properties": [
+    {
+      "name": "text",
+      "type": "String?",
+      "description": "Optional label text displayed to the right of the checkbox (8pt gap). Nil or empty hides the label."
+    },
+    {
+      "name": "shape",
+      "type": "CheckboxView.Shape",
+      "description": "Checkbox shape: .square (6pt corner radius rounded rect) or .circle"
+    },
+    {
+      "name": "isChecked",
+      "type": "Bool",
+      "description": "Whether the checkbox is currently checked (read-only, set via configure or toggleChecked)"
+    },
+    {
+      "name": "isEnabled",
+      "type": "Bool",
+      "description": "Whether the checkbox is interactable. Disabled state uses lighter border and text colors."
+    },
+    {
+      "name": "checkedIcon",
+      "type": "UIImage?",
+      "description": "Pre-loaded, pre-tinted icon image for the checked state. Pass checkbox-active (square) or check-active-small (circle) from icons-library."
+    },
+    {
+      "name": "colorScheme",
+      "type": "CheckboxColorScheme",
+      "description": "Injectable color scheme with borderEnabled, borderDisabled, checkedFill, textEnabled, textDisabled colors"
+    },
+    {
+      "name": "onTap",
+      "type": "(() -> Void)?",
+      "description": "Callback fired when checkbox is toggled"
+    }
+  ],
+  "usage": "import Components\n\n// Basic square checkbox\nlet checkbox = CheckboxView()\ncheckbox.configure(\n    text: \"Accept terms\",\n    shape: .square,\n    isChecked: false,\n    isEnabled: true,\n    checkedIcon: myCheckedIcon,\n    colorScheme: .default\n)\ncheckbox.onTap = { print(\"Toggled: \\(checkbox.isChecked)\") }\n\n// Circle checkbox without text\nlet radio = CheckboxView()\nradio.configure(\n    shape: .circle,\n    isChecked: true,\n    isEnabled: true,\n    checkedIcon: myCircleCheckedIcon\n)\n\n// Programmatic toggle with animation\ncheckbox.toggleChecked(animated: true)\ncheckbox.setChecked(false, animated: true)",
+  "tags": ["checkbox", "check", "toggle", "square", "circle", "selection", "form"]
+}

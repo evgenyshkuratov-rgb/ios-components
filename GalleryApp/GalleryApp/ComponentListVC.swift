@@ -3,7 +3,8 @@ import UIKit
 final class ComponentListVC: UIViewController {
 
     private let components: [(name: String, description: String, viewController: () -> UIViewController)] = [
-        ("ChipsView", "Filter chips with Default, Active, and Avatar states", { ChipsViewPreviewVC() })
+        ("ChipsView", "Filter chips with Default, Active, and Avatar states", { ChipsViewPreviewVC() }),
+        ("CheckboxView", "Checkbox with Square and Circle shapes, animated toggle", { CheckboxViewPreviewVC() })
     ]
 
     private let scrollView: UIScrollView = {

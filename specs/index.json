@@ -4,6 +4,10 @@
     {
       "name": "ChipsView",
       "description": "Filter chip with Default, Active, and Avatar states in two sizes (32pt, 40pt)"
+    },
+    {
+      "name": "CheckboxView",
+      "description": "Checkbox with Square and Circle shapes, animated toggle, enabled/disabled states"
     }
   ]
 }
