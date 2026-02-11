@@ -30,6 +30,10 @@
 		A1000001233B0039 /* frisbee-logo.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0038 /* frisbee-logo.svg */; };
 		A1000001233B0040 /* DSBrand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233B0041 /* DSBrand.swift */; };
 		A1000001233B0042 /* toggle-down.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0043 /* toggle-down.svg */; };
+		A1000001233B0044 /* check-active-small.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0045 /* check-active-small.svg */; };
+		A1000001233B0046 /* check-def-small.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0047 /* check-def-small.svg */; };
+		A1000001233B0048 /* checkbox-active.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0049 /* checkbox-active.svg */; };
+		A1000001233B004A /* checkbox-def.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B004B /* checkbox-def.svg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +61,10 @@
 		A1000001233B0038 /* frisbee-logo.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "frisbee-logo.svg"; sourceTree = "<group>"; };
 		A1000001233B0041 /* DSBrand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DSBrand.swift; sourceTree = "<group>"; };
 		A1000001233B0043 /* toggle-down.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "toggle-down.svg"; sourceTree = "<group>"; };
+		A1000001233B0045 /* check-active-small.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "check-active-small.svg"; sourceTree = "<group>"; };
+		A1000001233B0047 /* check-def-small.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "check-def-small.svg"; sourceTree = "<group>"; };
+		A1000001233B0049 /* checkbox-active.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "checkbox-active.svg"; sourceTree = "<group>"; };
+		A1000001233B004B /* checkbox-def.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "checkbox-def.svg"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +143,10 @@
 			isa = PBXGroup;
 			children = (
 				A1000001233B0012 /* arrow-right-s.svg */,
+				A1000001233B0045 /* check-active-small.svg */,
+				A1000001233B0047 /* check-def-small.svg */,
+				A1000001233B0049 /* checkbox-active.svg */,
+				A1000001233B004B /* checkbox-def.svg */,
 				A1000001233B0010 /* close-s.svg */,
 				A1000001233B0038 /* frisbee-logo.svg */,
 				A1000001233B0034 /* grid-view.svg */,
@@ -233,6 +245,10 @@
 				A1000001233B0037 /* settings-24.svg in Resources */,
 				A1000001233B0039 /* frisbee-logo.svg in Resources */,
 				A1000001233B0042 /* toggle-down.svg in Resources */,
+				A1000001233B0044 /* check-active-small.svg in Resources */,
+				A1000001233B0046 /* check-def-small.svg in Resources */,
+				A1000001233B0048 /* checkbox-active.svg in Resources */,
+				A1000001233B004A /* checkbox-def.svg in Resources */,
 				A1000001233B0018 /* Roboto.ttf in Resources */,
 				A1000001233B0019 /* RobotoMono.ttf in Resources */,
 			);
