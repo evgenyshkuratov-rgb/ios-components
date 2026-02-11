@@ -34,6 +34,7 @@
 		A1000001233B0046 /* check-def-small.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0047 /* check-def-small.svg */; };
 		A1000001233B0048 /* checkbox-active.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B0049 /* checkbox-active.svg */; };
 		A1000001233B004A /* checkbox-def.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1000001233B004B /* checkbox-def.svg */; };
+		A1000001233B0050 /* CheckboxViewPreviewVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001233B0051 /* CheckboxViewPreviewVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +66,7 @@
 		A1000001233B0047 /* check-def-small.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "check-def-small.svg"; sourceTree = "<group>"; };
 		A1000001233B0049 /* checkbox-active.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "checkbox-active.svg"; sourceTree = "<group>"; };
 		A1000001233B004B /* checkbox-def.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "checkbox-def.svg"; sourceTree = "<group>"; };
+		A1000001233B0051 /* CheckboxViewPreviewVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxViewPreviewVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 		A1000001233A000D /* Previews */ = {
 			isa = PBXGroup;
 			children = (
+				A1000001233B0051 /* CheckboxViewPreviewVC.swift */,
 				A1000001233A0006 /* ChipsViewPreviewVC.swift */,
 			);
 			path = Previews;
@@ -289,6 +292,7 @@
 				A1000001233B0007 /* SVGPathParser.swift in Sources */,
 				A1000001233B0009 /* DSIcon.swift in Sources */,
 				A1000001233B0040 /* DSBrand.swift in Sources */,
+				A1000001233B0050 /* CheckboxViewPreviewVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
