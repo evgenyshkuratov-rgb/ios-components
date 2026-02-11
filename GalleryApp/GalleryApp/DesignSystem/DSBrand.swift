@@ -110,4 +110,16 @@ enum DSBrand: String, CaseIterable {
             closeIconTint: basicColor50(for: style)
         )
     }
+
+    // MARK: - CheckboxView Integration
+
+    func checkboxColorScheme(for style: UIUserInterfaceStyle) -> CheckboxColorScheme {
+        CheckboxColorScheme(
+            borderEnabled: basicColor55(for: style),
+            borderDisabled: basicColor25(for: style),
+            checkedFill: accentColor(for: style),
+            textEnabled: basicColor50(for: style),
+            textDisabled: basicColor25(for: style)
+        )
+    }
 }
