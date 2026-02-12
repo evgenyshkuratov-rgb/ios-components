@@ -6,7 +6,7 @@ enum DSBrand: String, CaseIterable {
     case tdm = "TDM"
     case sover = "Sover"
     case kchat = "KCHAT"
-    case senseNew = "Sense"
+    case senseNew = "Sens"
 
     // MARK: - Color Cache
 

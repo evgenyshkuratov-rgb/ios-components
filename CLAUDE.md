@@ -103,7 +103,7 @@ ios-components/
 │       ├── AppDelegate.swift     # App entry point, nav bar appearance config
 │       ├── ComponentListVC.swift # Wise-inspired catalog (brand circle, search bar, icon cards)
 │       ├── DesignSystem/
-│       │   ├── DSBrand.swift     # 5-brand enum (Frisbee/TDM/Sover/KCHAT/Sense) → ChipsColorScheme
+│       │   ├── DSBrand.swift     # 5-brand enum (Frisbee/TDM/Sover/KCHAT/Sens) → ChipsColorScheme
 │       │   ├── DSColors.swift    # Dynamic light/dark color tokens (from icons-library)
 │       │   ├── DSTypography.swift # Roboto text styles from Figma (37 styles)
 │       │   ├── DSSpacing.swift   # Spacing & corner radius tokens
@@ -172,7 +172,7 @@ public struct ChipsColorScheme {
 | TDM | `#3E87DD` | `#3886E1` |
 | Sover | `#C7964F` | `#C4944D` |
 | KCHAT | `#EA5355` | `#E9474E` |
-| Sense | `#7548AD` | `#7548AD` |
+| Sens | `#7548AD` | `#7548AD` |
 
 Use `DSBrand.frisbee.chipsColorScheme(for: .light)` to get a themed `ChipsColorScheme`.
 
@@ -345,7 +345,7 @@ The nav bar reappears on push to preview screens.
 
 Each component preview page has three zones, top to bottom:
 
-1. **Brand selector** — segmented control (Frisbee / TDM / Sover / KCHAT / Sense) above the preview, switches `ChipsColorScheme` via `DSBrand`
+1. **Brand selector** — segmented control (Frisbee / TDM / Sover / KCHAT / Sens) above the preview, switches `ChipsColorScheme` via `DSBrand`
 2. **Preview container** — rounded rect (16pt corners, `backgroundSecond` fill) showing the live component centered. Background updates with brand/theme selection.
 3. **Controls panel** — below the preview, with aligned labels (fixed 52pt width). Controls are chosen by option count:
    - **2 options** → `UISegmentedControl` (e.g., Shape: Square/Circle, Theme: Light/Dark, Size: Small/Medium)
